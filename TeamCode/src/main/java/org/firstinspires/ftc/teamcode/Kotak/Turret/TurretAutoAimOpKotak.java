@@ -24,7 +24,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
     public static double kD = 0;
     public static double tolerance = 5;
 
-    // Физические ограничения турели (из измерений)
     public static double TURRET_MIN_ANGLE = -500;
     public static double TURRET_MAX_ANGLE = 500;
 
@@ -35,7 +34,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
     private CRServo turretServo;
     private asmPIDController turretPID;
 
-    // Переменные для отслеживания непрерывного угла
     private double lastRawAngle = 0;
     private int fullRotations = 0;
     private double continuousAngle = 0;
@@ -61,7 +59,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
 
             driveBase();
 
-            // Всегда обновляем непрерывный угол
             updateContinuousAngle();
 
             if (autoAimEnabled && !manualOverride) {
@@ -80,7 +77,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         encoder = hardwareMap.get(AnalogInput.class, "encoder");
         turretServo = hardwareMap.get(CRServo.class, "turret_r");
 
-        // Инициализация отслеживания угла
         lastRawAngle = getRawAngle();
         continuousAngle = lastRawAngle;
     }
@@ -104,28 +100,20 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         double robotY = robotPose.getY();
         double robotHeading = robotPose.getHeading();
 
-        // Вычисляем угол к цели в радианах
         double targetAngleRad = calculateAngleToTarget(robotX, robotY, robotHeading);
 
-        // Преобразуем в градусы
         double targetAngleDeg = Math.toDegrees(targetAngleRad);
 
-        // Нормализуем угол к цели в диапазон [-180, 180]
         targetAngleDeg = normalizeAngle(targetAngleDeg);
 
-        // Преобразуем в систему координат турели (0° = влево, 180° = вправо)
         double turretTargetAngle = 90 + targetAngleDeg;
 
-        // Ограничиваем физическими пределами турели [0, 180]
         turretTargetAngle = Math.max(0, Math.min(180, turretTargetAngle));
 
-        // Получаем текущий continuous угол
         double currentContinuousAngle = getContinuousAngle();
 
-        // Преобразуем target angle в continuous систему
         double continuousTarget = convertToContinuousTarget(turretTargetAngle, currentContinuousAngle);
 
-        // Ограничиваем continuous target физическими пределами
         continuousTarget = Math.max(TURRET_MIN_ANGLE, Math.min(TURRET_MAX_ANGLE, continuousTarget));
 
         turretPID.setCoefficients(kP, kI, kD);
@@ -137,23 +125,15 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         turretServo.setPower(-servoPower);
     }
 
-    /**
-     * Преобразует целевой угол турели (0-180) в continuous target с учетом текущего положения
-     * Выбирает ближайший эквивалентный угол в continuous системе
-     */
     private double convertToContinuousTarget(double targetAngle, double currentContinuousAngle) {
-        // Основной target в continuous системе (предполагая, что 0° continuous = 0° турели)
         double baseTarget = targetAngle;
 
-        // Находим ближайший эквивалентный угол в continuous системе
-        // Учитываем, что физический угол повторяется каждые 360 градусов
         double[] possibleTargets = {
                 baseTarget - 360,
                 baseTarget,
                 baseTarget + 360
         };
 
-        // Выбираем target, который ближе всего к текущему положению
         double bestTarget = baseTarget;
         double minDistance = Math.abs(currentContinuousAngle - baseTarget);
 
@@ -209,42 +189,28 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         }
     }
 
-    /**
-     * Вычисляет угол от робота к цели в радианах
-     */
     private double calculateAngleToTarget(double robotX, double robotY, double robotHeading) {
         double dx = TARGET_X - robotX;
         double dy = TARGET_Y - robotY;
 
-        // Абсолютный угол к цели на поле
         double absoluteAngleToTarget = Math.atan2(dy, dx);
 
-        // Относительный угол с учетом направления робота
         double relativeAngle = absoluteAngleToTarget - robotHeading;
 
-        // Нормализуем в диапазон [-PI, PI]
         return normalizeAngleRad(relativeAngle);
     }
 
-    /**
-     * Нормализует угол в радианах в диапазон [-PI, PI]
-     */
     private double normalizeAngleRad(double angle) {
         while (angle > Math.PI) angle -= 2 * Math.PI;
         while (angle < -Math.PI) angle += 2 * Math.PI;
         return angle;
     }
 
-    /**
-     * Нормализует угол в градусах в диапазон [-180, 180]
-     */
     private double normalizeAngle(double angle) {
         while (angle > 180) angle -= 360;
         while (angle < -180) angle += 360;
         return angle;
     }
-
-    // ========== МЕТОДЫ ДЛЯ РАБОТЫ С ЭНКОДЕРОМ ==========
 
     private double getRawAngle() {
         return encoder.getVoltage() * 360.0 / encoder.getMaxVoltage();
@@ -254,7 +220,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         double currentRawAngle = getRawAngle();
         double delta = currentRawAngle - lastRawAngle;
 
-        // Обработка перехода через 0/360
         if (delta > 180) {
             fullRotations--;
         } else if (delta < -180) {
@@ -264,10 +229,8 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         lastRawAngle = currentRawAngle;
         continuousAngle = currentRawAngle + (fullRotations * 360.0);
 
-        // Ограничиваем continuous angle физическими пределами (для безопасности)
         if (continuousAngle < TURRET_MIN_ANGLE) {
             continuousAngle = TURRET_MIN_ANGLE;
-            // Сбрасываем отслеживание, чтобы избежать накопления ошибки
             resetRotationTracking();
         } else if (continuousAngle > TURRET_MAX_ANGLE) {
             continuousAngle = TURRET_MAX_ANGLE;
@@ -279,9 +242,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         return continuousAngle;
     }
 
-    /**
-     * Сбрасывает отслеживание вращения (при достижении физических пределов)
-     */
     private void resetRotationTracking() {
         fullRotations = 0;
         lastRawAngle = getRawAngle();
@@ -317,7 +277,6 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         telemetry.addData("Full Rotations", fullRotations);
         telemetry.addData("Turret Limits", "%.0f° to %.0f°", TURRET_MIN_ANGLE, TURRET_MAX_ANGLE);
 
-        // Показываем предупреждение если接近 пределам
         if (Math.abs(currentContinuousAngle - TURRET_MIN_ANGLE) < 50 ||
                 Math.abs(currentContinuousAngle - TURRET_MAX_ANGLE) < 50) {
             telemetry.addLine("*** WARNING: Near physical limit! ***");
