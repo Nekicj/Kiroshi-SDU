@@ -189,6 +189,7 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         }
     }
 
+
     private double calculateAngleToTarget(double robotX, double robotY, double robotHeading) {
         double dx = TARGET_X - robotX;
         double dy = TARGET_Y - robotY;
@@ -200,11 +201,13 @@ public class TurretAutoAimOpKotak extends LinearOpMode {
         return normalizeAngleRad(relativeAngle);
     }
 
+
     private double normalizeAngleRad(double angle) {
         while (angle > Math.PI) angle -= 2 * Math.PI;
         while (angle < -Math.PI) angle += 2 * Math.PI;
         return angle;
     }
+
 
     private double normalizeAngle(double angle) {
         while (angle > 180) angle -= 360;
