@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Controllers;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -29,7 +31,7 @@ public class Niggantroller {
 
         intakeController.initialize(hardwareMap,"intake_1","intake_2");
         shooterController.initialize(hardwareMap,"shooter_l","shooter_r","l_angle","r_angle",ShooterControllerPIDVSA.ServosPos.DIRECTION_UP.getPos());
-        turretController.initialize(hardwareMap,"turret_r");
+        turretController.initialize(hardwareMap,"encoder","turret_r");
 
 //        shooterController.setAutoTuningEnabled(true);
     }
@@ -43,7 +45,7 @@ public class Niggantroller {
     public void update(boolean isBack){
 
 
-        turretController.update();
+//        turretController.update();
         outtakeScheduler.update();
         shooterController.update();
 
@@ -149,9 +151,15 @@ public class Niggantroller {
 //        shooterController.setCalibrated(isCalibrated);
     }
 
-    public void setTurretPose(double pose){
-        turretController.setTurretPose(pose);
+    public void setTurretGamepad(Gamepad gamepad1){
+        turretController.setGamepad(gamepad1);
     }
+
+    public void updateTurret(Pose robotPose){
+        turretController.update(robotPose);
+    }
+
+
 
 
 

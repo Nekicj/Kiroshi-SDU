@@ -45,7 +45,6 @@ public class ShooterControllerPIDVSA {
 
 
         public double getPos() {return position;}
-
     }
 
     public void initialize(HardwareMap hardwareMap, String shooterMotorLeftName, String shooterMotorRightName, String servoAngleLeftName, String servoAngleRightName,double pos) {
@@ -63,7 +62,7 @@ public class ShooterControllerPIDVSA {
 
         shooterMotorLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         shooterMotorRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        shooterMotorRight.setDirection(DcMotorEx.Direction.FORWARD);
+        shooterMotorRight.setDirection(DcMotorEx.Direction.REVERSE);
         shooterMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
 
         lastTime = System.nanoTime();

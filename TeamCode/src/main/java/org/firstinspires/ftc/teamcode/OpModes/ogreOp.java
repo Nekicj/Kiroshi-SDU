@@ -46,17 +46,11 @@ public class ogreOp extends LinearOpMode {
         follower.startTeleopDrive(true);
         follower.setStartingPose(new Pose(0,0,asmConfig.headingAfterAuto));
 
-
-
-//        pathToScore = follower.pathBuilder()
-//                .addPath(new Path(new BezierLine(follower::getPose, new Pose(0,0,0))))
-//                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), 1))
-//                .build();
-
-
-
         driver1 = new asmGamepadEx(gamepad1);
         niggantroller = new Niggantroller(hardwareMap,telemetry);
+
+        niggantroller.setTurretGamepad(gamepad1);
+
         baseController = new BaseController();
         baseController.initialize(hardwareMap,true);
 
@@ -91,42 +85,15 @@ public class ogreOp extends LinearOpMode {
             follower.setTeleOpDrive(
                     forward ,
                     strafe ,
-                    rotate *0.7,
-                    false // Robot Centric
+                    rotate *0.6,
+                    false
             );
-
-
-//            if(driver1.isAPressed()){
-//                poseScore = follower.getPose();
-//            }
-//
-//            if(driver1.isLeftTriggerPressed(0.2)){
-//                pathToScore = follower.pathBuilder()
-//                        .addPath(new Path(new BezierLine(follower::getPose, poseScore)))
-//                        .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading,poseScore.getHeading(), 1))
-//                        .build();
-//                follower.followPath(pathToScore);
-//            }
-
-
-
-
-
-//            if(!toArtifact){
-//                baseController.update(gamepad1.left_stick_x,-gamepad1.left_stick_y,gamepad1.right_stick_x,1,gamepad1.left_trigger > 0,false);
-//            }else{
-//                baseController.update(gamepad1.left_stick_x,-gamepad1.left_stick_y,gamepad1.right_stick_x,1,gamepad1.left_trigger > 0,false);
-//            }
 
 
 
             if(driver1.isXPressed()){
                 isShooting = !isShooting;
 //                niggantroller.setShooterCalibration(false);
-            }
-
-            if(gamepad2.rightBumperWasPressed()){
-                niggantroller.setTurretPose(TurretController.ServosPos.DIRECTION_UP.getPos());
             }
 
 
@@ -177,23 +144,12 @@ public class ogreOp extends LinearOpMode {
                 gamepad1.rumble(0.1,0.1,50);
             }
 
-//            actionsController.ravaPiet(gamepad1.right_bumper);
-//
-//            actionsController.ravaBluet(gamepad1.left_bumper);
-//
-//            actionsController.toUp(gamepad1.dpad_up);
-
 
 
             niggantroller.update(gamepad2.back);
-
-//            telemetry.addData("Status", "Running");
-//            telemetry.addData("gamepad left X",gamepad1.left_stick_x);
-//            telemetry.addData("gamepad right X",gamepad1.right_stick_x);
-//            telemetry.addData("gamepad left Y",gamepad1.left_stick_y);
+            niggantroller.updateTurret(follower.getPose());
             niggantroller.showShooterTelemetry(telemetry);
-//            niggantroller.showTurretTelemetry(telemetry);
-//            baseController.viewTelemetry(telemetry);
+
             telemetry.update();
 
         }

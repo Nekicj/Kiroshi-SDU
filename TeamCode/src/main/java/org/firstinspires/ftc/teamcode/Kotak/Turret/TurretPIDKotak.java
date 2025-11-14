@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 
 @Config
-@TeleOp(name = "Turret Manual Calibration", group = "Calibration")
+@TeleOp(name = "Turret Servo PID", group = "Calibration")
 public class TurretPIDKotak extends LinearOpMode {
 
     private AnalogInput encoder = null;

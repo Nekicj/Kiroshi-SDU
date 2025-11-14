@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Disabled
+
 @Autonomous(name = "Auto test",group = "Competition Auto")
 public class Autotest extends OpMode {
     private Follower follower;
@@ -76,15 +76,12 @@ public class Autotest extends OpMode {
                 break;
             case 1:
                 if(!follower.isBusy()){
-                    follower.activateAllPIDFs();
                     follower.followPath(take1Path,false);
                     pathState = 2;
                 }
                 break;
             case 2:
                 if(!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
                     pathState =3;
                     niggtimer.reset();
 
@@ -93,7 +90,6 @@ public class Autotest extends OpMode {
             case 3:
                 if( niggtimer.milliseconds() > 3000){
                     if(Math.abs(take1PosEnd.getX() - follower.getPose().getX()) > 2 && !follower.isBusy() ){
-                        follower.activateAllPIDFs();
                         follower.followPath(take2Path);
                         pathState = 4;
                     }else{
@@ -104,8 +100,6 @@ public class Autotest extends OpMode {
             case 4:
 
                 if(!follower.isBusy() ){
-                    follower.breakFollowing();
-                    follower.deactivateAllPIDFs();
                     pathState =5;
                     niggtimer.reset();
                 }

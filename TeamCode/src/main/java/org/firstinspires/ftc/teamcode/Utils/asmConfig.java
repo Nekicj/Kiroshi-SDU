@@ -14,7 +14,7 @@ public class asmConfig {
     public static int pattern = 0;
     public static boolean isRed = false;
 
-    public static double motorVelocityClose = 1100;
+    public static double motorVelocityClose = 1250;
     public static double motorOffsetClose = 50;
 
     public static double motorVelocityCloseTeleop = 3500;

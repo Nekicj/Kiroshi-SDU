@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Disabled
+
 @Config
 @TeleOp(name = "Base Op",group = "Competition")
 public class baseOp extends LinearOpMode {
@@ -33,9 +33,9 @@ public class baseOp extends LinearOpMode {
 
         while (opModeIsActive()){
 
-            double forward = -gamepad1.left_stick_y;
-            double strafe = -gamepad1.left_stick_x;
-            double rotate = -gamepad1.right_stick_x;
+            double forward = -gamepad1.left_stick_y * Math.abs(-gamepad1.left_stick_y);
+            double strafe = -gamepad1.left_stick_x * Math.abs(-gamepad1.left_stick_x);
+            double rotate = -gamepad1.right_stick_x * Math.abs(-gamepad1.right_stick_x);
 
             if(forward <= 0.05 && forward >= -0.05){
                 forward = 0;
@@ -52,7 +52,7 @@ public class baseOp extends LinearOpMode {
                     forward ,
                     strafe ,
                     rotate *0.7,
-                    false // Robot Centric
+                    true // Robot Centric
             );
 
             telemetry.addData("robot X: ",follower.getPose().getX());
