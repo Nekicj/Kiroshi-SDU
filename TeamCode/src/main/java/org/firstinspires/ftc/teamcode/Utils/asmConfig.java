@@ -14,13 +14,13 @@ public class asmConfig {
     public static int pattern = 0;
     public static boolean isRed = false;
 
-    public static double motorVelocityClose = 1250;
+    public static double motorVelocityClose = 1200;
     public static double motorOffsetClose = 50;
 
     public static double motorVelocityCloseTeleop = 3500;
     public static double motorOffsetCloseTeleop = 200;
 
-    public static double motorVelocityLong = 1550;
+    public static double motorVelocityLong = 1900;
     public static double motorOffsetLong = 100;
 
     public static Pose scorePose = new Pose(34.801,4.545,-2.35);

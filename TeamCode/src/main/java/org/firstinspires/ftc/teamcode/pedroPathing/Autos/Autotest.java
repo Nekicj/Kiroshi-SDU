@@ -2,13 +2,10 @@ package org.firstinspires.ftc.teamcode.pedroPathing.Autos;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -22,34 +19,23 @@ public class Autotest extends OpMode {
 
     private int pathState = 1;
 
-    private final Pose startPose = new Pose(-14.516,11.207,-0.7334);
-    private final Pose scorePose = new Pose(-14.516,11.207,-0.7334);
-    private final Pose take1PosStart = new Pose(-16.698,0.345,Math.toRadians(0));
-    private final Pose take1PosEnd = new Pose(-0,-31.200,-Math.toRadians(180));
+    private final Pose startPose = new Pose(0,0,0);
+    private final Pose curve_point = new Pose(30,-10,0);
+    private final Pose end_pose = new Pose(40,20,Math.toRadians(90));
 
 
-    public Path take1Path;
-
-    public Path take2Path;
+    public PathChain bezierCurve = null;
+    public PathChain bezier = null;
 
     public ElapsedTime niggtimer;
-
-    public PathChain posTo;
-
-    public PathChain startToTake1;
     public void buildPaths(){
-        startToTake1 = follower.pathBuilder()
-                .addPath(new BezierCurve(startPose,take1PosStart))
-                .setLinearHeadingInterpolation(startPose.getHeading(),take1PosStart.getHeading(),1)
-                .build();
+        bezierCurve = follower.pathBuilder()
+                .addPath(new BezierCurve(startPose,curve_point,end_pose))
+                .setTangentHeadingInterpolation().build();
 
-        take1Path = new Path(new BezierLine(take1PosStart,take1PosEnd));
-        take1Path.setLinearHeadingInterpolation(take1PosStart.getHeading(),take1PosEnd.getHeading());
-        take1Path.setTranslationalConstraint(0.4);
-
-        take2Path = new Path(new BezierLine(take1PosEnd,take1PosStart));
-        take2Path.setLinearHeadingInterpolation(take1PosEnd.getHeading(),take1PosStart.getHeading());
-        take2Path.setTranslationalConstraint(0.4);
+        bezier = follower.pathBuilder()
+                .addPath(new BezierCurve(end_pose,curve_point,startPose))
+                .setTangentHeadingInterpolation().build();
 
 
     }
@@ -62,7 +48,7 @@ public class Autotest extends OpMode {
         opModeTimer.resetTimer();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(take1PosStart);
+        follower.setStartingPose(startPose);
 
 
         buildPaths();
@@ -71,45 +57,34 @@ public class Autotest extends OpMode {
     public void pathUpdate(){
         switch (pathState){
             case 0:
-                follower.followPath(startToTake1);
-                pathState = 1;
+                if(!follower.isBusy()){
+                    follower.followPath(bezierCurve);
+                    pathState = 1;
+                }
                 break;
             case 1:
                 if(!follower.isBusy()){
-                    follower.followPath(take1Path,false);
+                    niggtimer.reset();
                     pathState = 2;
                 }
                 break;
             case 2:
-                if(!follower.isBusy()){
-                    pathState =3;
-                    niggtimer.reset();
-
+                if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
+                    follower.followPath(bezier);
+                    pathState = 3;
                 }
                 break;
             case 3:
-                if( niggtimer.milliseconds() > 3000){
-                    if(Math.abs(take1PosEnd.getX() - follower.getPose().getX()) > 2 && !follower.isBusy() ){
-                        follower.followPath(take2Path);
-                        pathState = 4;
-                    }else{
-                        pathState = 1;
-                    }
+                if(!follower.isBusy()){
+                    pathState = 4;
+                    niggtimer.reset();
                 }
                 break;
             case 4:
-
-                if(!follower.isBusy() ){
-                    pathState =5;
-                    niggtimer.reset();
+                if(niggtimer.milliseconds() > 1500){
+                    pathState = 0;
                 }
                 break;
-            case 5:
-                if(niggtimer.milliseconds() > 3000){
-                    pathState = 1;
-                    niggtimer.reset();
-                }
-
 
 
         }
@@ -120,9 +95,9 @@ public class Autotest extends OpMode {
         pathUpdate();
 
         telemetry.addData("path state", pathState);
-        telemetry.addData("X",Math.abs(take1PosEnd.getX() - follower.getPose().getX()));
-//        telemetry.addData("x", follower.getPose().getX());
-//        telemetry.addData("y", follower.getPose().getY());
+//        telemetry.addData("X",Math.abs(take1PosEnd.getX() - follower.getPose().getX()));
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
 //        telemetry.addData("heading", follower.getPose().getHeading());
 //        telemetry.addData("closest heading",follower.getClosestPointHeadingGoal());
 //        telemetry.addData("closestPosHeading",follower.getClosestPose().getPose().getHeading());

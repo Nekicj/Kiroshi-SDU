@@ -61,7 +61,7 @@ public class Niggantroller {
     // 1 piet
 
     public void showTelemetry(Telemetry telemetry){
-        telemetry.addData("time b shoot",TIME_BETWEEN_SHOOT);
+
         telemetry.update();
     }
     public void intakeEpt(double intakeState){
@@ -157,6 +157,14 @@ public class Niggantroller {
 
     public void updateTurret(Pose robotPose){
         turretController.update(robotPose);
+    }
+
+    public void setTurretAutoAimEnabled(boolean enabled){
+        turretController.setAutoAimEnabled(enabled);
+    }
+
+    public void showTurretTelemetry(Telemetry telemetry){
+        turretController.showTelemetry(telemetry);
     }
 
 

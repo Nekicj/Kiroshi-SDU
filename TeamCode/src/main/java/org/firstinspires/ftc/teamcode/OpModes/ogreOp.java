@@ -82,6 +82,7 @@ public class ogreOp extends LinearOpMode {
             }
 
             follower.update();
+
             follower.setTeleOpDrive(
                     forward ,
                     strafe ,
@@ -89,18 +90,17 @@ public class ogreOp extends LinearOpMode {
                     false
             );
 
-
-
             if(driver1.isXPressed()){
                 isShooting = !isShooting;
-//                niggantroller.setShooterCalibration(false);
             }
 
 
             if(isShooting){
                 niggantroller.toShoot(true);
+                niggantroller.setTurretAutoAimEnabled(true);
             }else{
                 niggantroller.toShoot(false);
+                niggantroller.setTurretAutoAimEnabled(false);
             }
 
 
@@ -118,7 +118,7 @@ public class ogreOp extends LinearOpMode {
             }
 
             if(isCloseScore){
-                niggantroller.setDirectionPos(ShooterControllerPIDVSA.ServosPos.DIRECTION_UP.getPos());
+                niggantroller.setDirectionPos(ShooterControllerPIDVSA.ServosPos.DIRECTION_DOWN.getPos());
                 targetVelocityToCheck = asmConfig.motorVelocityClose;
                 offset = asmConfig.motorOffsetClose;
                 niggantroller.setShooterVelocity(targetVelocityToCheck);
@@ -148,7 +148,11 @@ public class ogreOp extends LinearOpMode {
 
             niggantroller.update(gamepad2.back);
             niggantroller.updateTurret(follower.getPose());
-            niggantroller.showShooterTelemetry(telemetry);
+            niggantroller.showTurretTelemetry(telemetry);
+            telemetry.addData("X",follower.getPose().getX());
+            telemetry.addData("Y",follower.getPose().getY());
+            telemetry.addData("heading",follower.getPose().getHeading());
+            //            niggantroller.showShooterTelemetry(telemetry);
 
             telemetry.update();
 

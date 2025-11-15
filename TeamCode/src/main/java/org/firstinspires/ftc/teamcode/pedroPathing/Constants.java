@@ -25,13 +25,13 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
 
-            .xVelocity(78.72774235282357)
-            .yVelocity(60.38050373708169);
+            .xVelocity(66.80669925719735)
+            .yVelocity(53.99845826156496);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.1)
-            .forwardZeroPowerAcceleration(-33.18291229811078)
-            .lateralZeroPowerAcceleration(-74.7114255848616)
+            .forwardZeroPowerAcceleration(-41.23642614667588)
+            .lateralZeroPowerAcceleration(-72.42634907797286)
             .translationalPIDFCoefficients(new PIDFCoefficients(
                     0.14,
                     0,
@@ -110,13 +110,16 @@ public class Constants {
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(2.52)
-            .strafePodX(-3.38583)
+            .forwardPodY(2.244)
+            .strafePodX(-5.635)
             .hardwareMapName("pinpoint")
 
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
 
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,

@@ -16,6 +16,8 @@ public class TurretController {
     private CRServo turretServo;
     private asmPIDController turretPID;
 
+    private Pose thisRobotPose = new Pose(0,0,0);
+
     public static double kP = 0.01;
     public static double kI = 0;
     public static double kD = 0;
@@ -27,8 +29,8 @@ public class TurretController {
     public static double MAX_CONTINUOUS = 1027;
     public static double ZERO_CONTINUOUS = 123;
 
-    public static double TARGET_X = 119.4;
-    public static double TARGET_Y = 88;
+    public static double TARGET_X = 119;
+    public static double TARGET_Y = 93;
 
     private double lastRawAngle = 0;
     private int fullRotations = 0;
@@ -64,9 +66,8 @@ public class TurretController {
     }
 
     public void update(Pose robotPose) {
-        if (!autoAimEnabled) {
-            return;
-        }
+        this.thisRobotPose = robotPose;
+
         updateContinuousAngle();
         processGamepadInput();
 
@@ -99,10 +100,13 @@ public class TurretController {
         if (currentLeftTriggerState && !lastLeftTriggerState) {
             calibrationMode = true;
             calibrationJoystickInput = -gamepad.right_stick_x;
+            resetRotationTracking();
+
         } else if (!currentLeftTriggerState && lastLeftTriggerState) {
             calibrationMode = false;
             resetRotationTracking();
         } else if (calibrationMode) {
+            resetRotationTracking();
             calibrationJoystickInput = -gamepad.right_stick_x;
             calibrationJoystickInput = applyDeadzone(calibrationJoystickInput, 0.1);
         }
@@ -283,11 +287,11 @@ public class TurretController {
     }
 
 
-    public void showTelemetry(Telemetry telemetry, Pose robotPose) {
-        double fieldAngle = calculateFieldAngleToTarget(robotPose.getX(), robotPose.getY(), robotPose.getHeading());
+    public void showTelemetry(Telemetry telemetry) {
+        double fieldAngle = calculateFieldAngleToTarget(thisRobotPose.getX(), thisRobotPose.getY(), thisRobotPose.getHeading());
 
         telemetry.addLine("=== TURRET CONTROLLER ===");
-        telemetry.addData("Robot Position", "X: %.1f, Y: %.1f", robotPose.getX(), robotPose.getY());
+        telemetry.addData("Robot Position", "X: %.1f, Y: %.1f", thisRobotPose.getX(), thisRobotPose.getY());
         telemetry.addData("Target Position", "X: %.1f, Y: %.1f", TARGET_X, TARGET_Y);
         telemetry.addData("Field Angle to Target", "%.1f°", fieldAngle);
         telemetry.addData("Turret Current Angle", "%.1f°", getCurrentAngle());
