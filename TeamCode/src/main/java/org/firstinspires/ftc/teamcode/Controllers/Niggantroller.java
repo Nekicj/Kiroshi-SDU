@@ -151,6 +151,8 @@ public class Niggantroller {
 //        shooterController.setCalibrated(isCalibrated);
     }
 
+
+
     public void setTurretGamepad(Gamepad gamepad1){
         turretController.setGamepad(gamepad1);
     }
@@ -165,6 +167,20 @@ public class Niggantroller {
 
     public void showTurretTelemetry(Telemetry telemetry){
         turretController.showTelemetry(telemetry);
+    }
+
+    public void setTurretTargetPoint(Pose targetPoint){
+        turretController.setTargetPoint(targetPoint.getPose().getX(),targetPoint.getPose().getY());
+    }
+    public void setTurretMode(TurretController.TurretMode mode){
+        turretController.setTurretMode(mode);
+    }
+    public void setFieldAngleTarget(double angle){
+        turretController.setFieldAngleTarget(angle);
+    }
+
+    public void setRobotRelativeAngle(double angle){
+        turretController.setRobotRelativeAngle(angle);
     }
 
 

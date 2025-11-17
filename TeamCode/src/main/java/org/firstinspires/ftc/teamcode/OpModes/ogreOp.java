@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
 import org.firstinspires.ftc.teamcode.Controllers.TurretController;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
+import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.List;
@@ -26,11 +27,11 @@ public class ogreOp extends LinearOpMode {
     private Niggantroller niggantroller;
     private BaseController baseController;
     private asmGamepadEx driver1;
+    private asmRobotState robotState = new asmRobotState();
 
     private double targetVelocityToCheck = asmConfig.motorVelocityCloseTeleop;
     private double offset = asmConfig.motorOffsetCloseTeleop;
     private boolean toArtifact = false;
-
     private boolean isCloseScore = true;
     private boolean isShooting = false;
 
@@ -42,20 +43,22 @@ public class ogreOp extends LinearOpMode {
     public void runOpMode() {
         follower = Constants.createFollower(hardwareMap);
         follower.update();
-
         follower.startTeleopDrive(true);
-        follower.setStartingPose(new Pose(0,0,asmConfig.headingAfterAuto));
+        follower.setStartingPose(robotState.getPoseAfterAuto());
 
         driver1 = new asmGamepadEx(gamepad1);
-        niggantroller = new Niggantroller(hardwareMap,telemetry);
 
+        niggantroller = new Niggantroller(hardwareMap,telemetry);
         niggantroller.setTurretGamepad(gamepad1);
+        niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
+        niggantroller.setFieldAngleTarget(39);
 
         baseController = new BaseController();
         baseController.initialize(hardwareMap,true);
 
 
         telemetry.addData("Status, ","Initialized");
+        telemetry.addData("Pose: ",follower.getPose().toString());
 
 
         List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
@@ -97,10 +100,10 @@ public class ogreOp extends LinearOpMode {
 
             if(isShooting){
                 niggantroller.toShoot(true);
-                niggantroller.setTurretAutoAimEnabled(true);
+//                niggantroller.setTurretAutoAimEnabled(true);
             }else{
                 niggantroller.toShoot(false);
-                niggantroller.setTurretAutoAimEnabled(false);
+//                niggantroller.setTurretAutoAimEnabled(false);
             }
 
 

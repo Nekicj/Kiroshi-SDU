@@ -18,18 +18,18 @@ public class TurretController {
 
     private Pose thisRobotPose = new Pose(0,0,0);
 
-    public static double kP = 0.01;
+    public static double kP = 0.005;
     public static double kI = 0;
     public static double kD = 0;
     public static double tolerance = 5;
 
     public static double MIN_TURRET_ANGLE = -180;
     public static double MAX_TURRET_ANGLE = 180;
-    public static double MIN_CONTINUOUS = -765;
-    public static double MAX_CONTINUOUS = 1027;
+    public static double MIN_CONTINUOUS = -537;
+    public static double MAX_CONTINUOUS = 700;
     public static double ZERO_CONTINUOUS = 123;
 
-    public static double TARGET_X = 119;
+    public static double TARGET_X = 120;
     public static double TARGET_Y = 93;
 
     private double lastRawAngle = 0;
@@ -39,9 +39,19 @@ public class TurretController {
     private boolean firstUpdate = true;
     private static final double MAX_REASONABLE_DELTA = 180;
 
+
+    public enum TurretMode {
+        FIELD_TARGET,
+        FIELD_ANGLE,
+        ROBOT_RELATIVE
+    }
+
+    private TurretMode currentMode = TurretMode.FIELD_TARGET;
     private boolean autoAimEnabled = true;
     private double targetTurretAngle = 0;
     private double manualPower = 0;
+
+    private double fieldAngleTarget = 0;
 
     private boolean calibrationMode = false;
     private double calibrationJoystickInput = 0;
@@ -69,31 +79,55 @@ public class TurretController {
         this.thisRobotPose = robotPose;
 
         updateContinuousAngle();
-        processGamepadInput();
+        processCalibrationInput();
 
         if (calibrationMode) {
             turretServo.setPower(calibrationJoystickInput);
-        } else if (autoAimEnabled) {
-            updateAutoAim(robotPose);
         } else {
-            updateManualToTarget();
+            switch (currentMode) {
+                case FIELD_TARGET:
+                    if (autoAimEnabled) {
+                        updateFieldTargetMode(robotPose);
+                    } else {
+                        updateManualToTarget();
+                    }
+                    break;
+                case FIELD_ANGLE:
+                    updateFieldAngleMode();
+                    break;
+                case ROBOT_RELATIVE:
+                    updateRobotRelativeMode();
+                    break;
+            }
         }
     }
 
     public void update() {
         updateContinuousAngle();
-        processGamepadInput();
+        processCalibrationInput();
 
         if (calibrationMode) {
             turretServo.setPower(calibrationJoystickInput);
-        } else if (autoAimEnabled) {
-            updateAutoAim();
         } else {
-            updateManualToTarget();
+            switch (currentMode) {
+                case FIELD_TARGET:
+                    if (autoAimEnabled) {
+                        updateFieldTargetMode();
+                    } else {
+                        updateManualToTarget();
+                    }
+                    break;
+                case FIELD_ANGLE:
+                    updateFieldAngleMode();
+                    break;
+                case ROBOT_RELATIVE:
+                    updateRobotRelativeMode();
+                    break;
+            }
         }
     }
 
-    private void processGamepadInput() {
+    private void processCalibrationInput() {
         if (gamepad == null) return;
 
         boolean currentLeftTriggerState = gamepad.left_trigger > 0.1;
@@ -101,7 +135,6 @@ public class TurretController {
             calibrationMode = true;
             calibrationJoystickInput = -gamepad.right_stick_x;
             resetRotationTracking();
-
         } else if (!currentLeftTriggerState && lastLeftTriggerState) {
             calibrationMode = false;
             resetRotationTracking();
@@ -110,15 +143,87 @@ public class TurretController {
             calibrationJoystickInput = -gamepad.right_stick_x;
             calibrationJoystickInput = applyDeadzone(calibrationJoystickInput, 0.1);
         }
-
         lastLeftTriggerState = currentLeftTriggerState;
+    }
+
+
+    public void setTurretMode(TurretMode mode) {
+        this.currentMode = mode;
+        turretPID.reset();
+
+        if (mode == TurretMode.FIELD_ANGLE) {
+            fieldAngleTarget = getCurrentAngle();
+        }
+    }
+
+    public TurretMode getTurretMode() {
+        return currentMode;
+    }
+
+    public void setFieldAngleTarget(double fieldAngle) {
+        this.fieldAngleTarget = normalizeAngle(fieldAngle);
+    }
+
+
+    public void setRobotRelativeAngle(double robotRelativeAngle) {
+        this.targetTurretAngle = Math.max(MIN_TURRET_ANGLE, Math.min(MAX_TURRET_ANGLE, robotRelativeAngle));
+    }
+
+
+    private void updateFieldTargetMode(Pose robotPose) {
+        double fieldAngle = calculateFieldAngleToTarget(robotPose.getX(), robotPose.getY(), robotPose.getHeading());
+        setTargetAngle(fieldAngle);
+        updateFieldTargetMode();
+    }
+
+    private void updateFieldTargetMode() {
+        double targetContinuous = turretToContinuousAngle(targetTurretAngle);
+        double currentContinuous = getContinuousAngle();
+
+        turretPID.setCoefficients(kP, kI, kD);
+        turretPID.setTarget(targetContinuous);
+
+        double servoPower = turretPID.calculate(currentContinuous);
+        servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
+        turretServo.setPower(-servoPower);
+    }
+
+
+    private void updateFieldAngleMode() {
+        double robotHeading = Math.toDegrees(thisRobotPose.getHeading());
+        double relativeTurretAngle = fieldAngleTarget - robotHeading;
+        relativeTurretAngle = normalizeAngle(relativeTurretAngle);
+
+        setTargetAngle(relativeTurretAngle);
+
+        double targetContinuous = turretToContinuousAngle(targetTurretAngle);
+        double currentContinuous = getContinuousAngle();
+
+        turretPID.setCoefficients(kP, kI, kD);
+        turretPID.setTarget(targetContinuous);
+
+        double servoPower = turretPID.calculate(currentContinuous);
+        servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
+        turretServo.setPower(-servoPower);
+    }
+
+
+    private void updateRobotRelativeMode() {
+        double targetContinuous = turretToContinuousAngle(targetTurretAngle);
+        double currentContinuous = getContinuousAngle();
+
+        turretPID.setCoefficients(kP, kI, kD);
+        turretPID.setTarget(targetContinuous);
+
+        double servoPower = turretPID.calculate(currentContinuous);
+        servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
+        turretServo.setPower(-servoPower);
     }
 
 
     public void setTargetAngle(double angle) {
         this.targetTurretAngle = Math.max(MIN_TURRET_ANGLE, Math.min(MAX_TURRET_ANGLE, angle));
     }
-
 
     public void setManualPower(double power) {
         this.manualPower = power;
@@ -131,10 +236,14 @@ public class TurretController {
         }
     }
 
+    public void setTargetPoint(double x, double y) {
+        this.TARGET_X = x;
+        this.TARGET_Y = y;
+    }
+
     public void setCalibrationMode(boolean enabled, double joystickInput) {
         this.calibrationMode = enabled;
         this.calibrationJoystickInput = joystickInput;
-
         if (!enabled) {
             resetRotationTracking();
         }
@@ -143,7 +252,6 @@ public class TurretController {
     public double getCurrentAngle() {
         return continuousToTurretAngle(getContinuousAngle());
     }
-
 
     public double getContinuousAngle() {
         return continuousAngle;
@@ -175,30 +283,8 @@ public class TurretController {
         return autoAimEnabled;
     }
 
-
     public boolean isCalibrationMode() {
         return calibrationMode;
-    }
-
-
-    private void updateAutoAim(Pose robotPose) {
-
-        double fieldAngle = calculateFieldAngleToTarget(robotPose.getX(), robotPose.getY(), robotPose.getHeading());
-        setTargetAngle(fieldAngle);
-        updateAutoAim();
-    }
-
-    private void updateAutoAim() {
-        double targetContinuous = turretToContinuousAngle(targetTurretAngle);
-        double currentContinuous = getContinuousAngle();
-
-        turretPID.setCoefficients(kP, kI, kD);
-        turretPID.setTarget(targetContinuous);
-
-        double servoPower = turretPID.calculate(currentContinuous);
-        servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
-
-        turretServo.setPower(-servoPower);
     }
 
     private void updateManualToTarget() {
@@ -231,7 +317,6 @@ public class TurretController {
             return;
         }
 
-
         if (delta > 180) {
             fullRotations--;
         } else if (delta < -180) {
@@ -242,7 +327,6 @@ public class TurretController {
         continuousAngle = currentRawAngle + (fullRotations * 360.0);
         lastContinuousAngle = continuousAngle;
     }
-
 
     private double calculateFieldAngleToTarget(double robotX, double robotY, double robotHeading) {
         double dx = TARGET_X - robotX;
@@ -287,6 +371,12 @@ public class TurretController {
     }
 
 
+    private double normalizeAngle(double angle) {
+        while (angle > 180) angle -= 360;
+        while (angle < -180) angle += 360;
+        return angle;
+    }
+
     public void showTelemetry(Telemetry telemetry) {
         double fieldAngle = calculateFieldAngleToTarget(thisRobotPose.getX(), thisRobotPose.getY(), thisRobotPose.getHeading());
 
@@ -296,17 +386,16 @@ public class TurretController {
         telemetry.addData("Field Angle to Target", "%.1f°", fieldAngle);
         telemetry.addData("Turret Current Angle", "%.1f°", getCurrentAngle());
         telemetry.addData("Turret Target Angle", "%.1f°", targetTurretAngle);
+        telemetry.addData("Current Mode", currentMode.toString());
+
+        if (currentMode == TurretMode.FIELD_ANGLE) {
+            telemetry.addData("Field Angle Target", "%.1f°", fieldAngleTarget);
+        }
+
         telemetry.addData("Auto-Aim", autoAimEnabled ? "ENABLED" : "DISABLED");
         telemetry.addData("Calibration Mode", calibrationMode ? "ACTIVE" : "INACTIVE");
         telemetry.addData("Continuous Angle", "%.1f°", getContinuousAngle());
         telemetry.addData("Raw Angle", "%.1f°", getRawAngle());
         telemetry.addData("Full Rotations", fullRotations);
-
-        telemetry.addLine("");
-        telemetry.addLine("=== CONTROLS ===");
-        telemetry.addData("Calibration", "Hold Left Trigger + Right Stick");
-        telemetry.addData("Toggle Auto-Aim", "X button");
-        telemetry.addData("Move Target (RB + DPad)", "Change target position");
-        telemetry.addData("Manual Aim (no auto)", "DPad Up/Down");
     }
 }

@@ -25,13 +25,13 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
 
-            .xVelocity(66.80669925719735)
-            .yVelocity(53.99845826156496);
+            .xVelocity(68.9712380236528)
+            .yVelocity(62.03227990818775);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.1)
-            .forwardZeroPowerAcceleration(-41.23642614667588)
-            .lateralZeroPowerAcceleration(-72.42634907797286)
+            .forwardZeroPowerAcceleration(-35.64661499080001)
+            .lateralZeroPowerAcceleration(-75.37480738371073)
             .translationalPIDFCoefficients(new PIDFCoefficients(
                     0.14,
                     0,
@@ -46,10 +46,10 @@ public class Constants {
 //            ))
             .translationalPIDFSwitch(5)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.06,
+                    0.2,
                     0,
-                    0.004,                     //0.004,
-                    0.02                //0.02
+                    0.001,                     //0.004,
+                    0.03                //0.02
             ))
 //            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
 //                    0.4,   //0.4
@@ -65,16 +65,16 @@ public class Constants {
 //                    0.02
 //            ))
             .headingPIDFCoefficients(new PIDFCoefficients(
-                    0.64,
+                    0.4,
                     0,
-                    0.022,
-                    0.02
+                    0.001,
+                    0.08
             ))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
-                    1, //2.5
+                    2, //2.5
                     0,
                     0.1,   //0.1
-                    0.02 //0.0005
+                    0.002 //0.0005
             ))
 //            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(
 //                    1, //2.5
@@ -84,11 +84,11 @@ public class Constants {
 //            ))
             .useSecondaryHeadingPIDF(true)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.0035,
+                    0.2,
                     0,
-                    0.00032,
+                    0.001,
                     0.6,
-                    0.045
+                    0.1
             ))
             .useSecondaryDrivePIDF(false)
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
@@ -129,7 +129,7 @@ public class Constants {
             100,
             1.6,
             10,
-            1
+            0.9
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {
