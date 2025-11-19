@@ -183,6 +183,10 @@ public class Niggantroller {
         turretController.setRobotRelativeAngle(angle);
     }
 
+    public boolean turretIsAtTarget(double tolerance){
+        return turretController.isAtTargetAngle(tolerance);
+    }
+
 
 
 

@@ -19,11 +19,11 @@ public class ShooterControllerPIDVSA {
 
     private double directionPos = 0.7;
 
-    public static double kS = 1.2;    // Volts - static friction
-    public static double kV = 0.0049;  // Volts per RPM - velocity constant
-    public static double kA = 0.0001;  // Volts per RPM/s - acceleration constant
+    public static double kS = 0.5;    // Volts - static friction
+    public static double kV = 0.0052;  // Volts per RPM - velocity constant
+    public static double kA = 0.001;  // Volts per RPM/s - acceleration constant
 
-    public static double kP = 0.005;
+    public static double kP = 0.04;
     public static double kI = 0.0;
     public static double kD = 0.0;
 

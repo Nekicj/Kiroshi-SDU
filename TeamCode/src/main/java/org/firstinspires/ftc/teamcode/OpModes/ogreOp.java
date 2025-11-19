@@ -38,6 +38,8 @@ public class ogreOp extends LinearOpMode {
     private PathChain pathToScore = null;
     private Pose poseScore = new Pose(0,0,0);
 
+    public static double targetTurretAngle = 39;
+
     private Follower follower;
     @Override
     public void runOpMode() {
@@ -51,7 +53,8 @@ public class ogreOp extends LinearOpMode {
         niggantroller = new Niggantroller(hardwareMap,telemetry);
         niggantroller.setTurretGamepad(gamepad1);
         niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
-        niggantroller.setFieldAngleTarget(39);
+        niggantroller.setFieldAngleTarget(targetTurretAngle);
+        niggantroller.setRobotRelativeAngle(targetTurretAngle);
 
         baseController = new BaseController();
         baseController.initialize(hardwareMap,true);
@@ -61,13 +64,15 @@ public class ogreOp extends LinearOpMode {
         telemetry.addData("Pose: ",follower.getPose().toString());
 
 
-        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
-        hubs.forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
+//        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
+//        hubs.forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
 
         waitForStart();
 
         while (opModeIsActive()){
-            hubs.forEach(LynxModule::clearBulkCache);
+//            hubs.forEach(LynxModule::clearBulkCache);
+            niggantroller.setFieldAngleTarget(targetTurretAngle);
+            niggantroller.setRobotRelativeAngle(targetTurretAngle);
             driver1.update();
 
             double forward = -gamepad1.left_stick_y;
@@ -151,11 +156,11 @@ public class ogreOp extends LinearOpMode {
 
             niggantroller.update(gamepad2.back);
             niggantroller.updateTurret(follower.getPose());
-            niggantroller.showTurretTelemetry(telemetry);
+//            niggantroller.showTurretTelemetry(telemetry);
             telemetry.addData("X",follower.getPose().getX());
             telemetry.addData("Y",follower.getPose().getY());
             telemetry.addData("heading",follower.getPose().getHeading());
-            //            niggantroller.showShooterTelemetry(telemetry);
+            niggantroller.showShooterTelemetry(telemetry);
 
             telemetry.update();
 

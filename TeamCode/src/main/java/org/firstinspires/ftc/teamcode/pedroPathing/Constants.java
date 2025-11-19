@@ -33,10 +33,10 @@ public class Constants {
             .forwardZeroPowerAcceleration(-35.64661499080001)
             .lateralZeroPowerAcceleration(-75.37480738371073)
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.14,
+                    0.06,
                     0,
-                    0.015,
-                    0.04
+                    0.01,
+                    0.03
             ))
 //            .translationalPIDFCoefficients(new PIDFCoefficients(
 //                    0.08,
@@ -46,10 +46,10 @@ public class Constants {
 //            ))
             .translationalPIDFSwitch(5)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.2,
+                    0.09,
                     0,
-                    0.001,                     //0.004,
-                    0.03                //0.02
+                    0,                     //0.004,
+                    0.04                //0.02
             ))
 //            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
 //                    0.4,   //0.4
@@ -90,7 +90,7 @@ public class Constants {
                     0.6,
                     0.1
             ))
-            .useSecondaryDrivePIDF(false)
+            .useSecondaryDrivePIDF(true)
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
                     0.02,
                     0,
@@ -101,17 +101,17 @@ public class Constants {
 
             .drivePIDFSwitch(15)
             .headingPIDFSwitch(0.2) //0.07
-            .holdPointHeadingScaling(0.35)
-            .holdPointTranslationalScaling(0.25)
-            .turnHeadingErrorThreshold(0.01)
+            .holdPointHeadingScaling(1)
+            .holdPointTranslationalScaling(1)
+            .turnHeadingErrorThreshold(0.005)
             .automaticHoldEnd(true)
 
             .centripetalScaling(0.0005);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(2.244)
-            .strafePodX(-5.635)
+            .forwardPodY(5.315)
+            .strafePodX(1.181)
             .hardwareMapName("pinpoint")
 
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
@@ -123,13 +123,13 @@ public class Constants {
 
     public static PathConstraints pathConstraints = new PathConstraints(
             0.995,
-            0.1,
-            0.1,
-            0.009,
+            1,
+            1,
+            1,
             100,
-            1.6,
+            0.9,
             10,
-            0.9
+            0.8
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

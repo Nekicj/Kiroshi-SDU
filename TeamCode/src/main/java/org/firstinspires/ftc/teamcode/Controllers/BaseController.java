@@ -192,8 +192,8 @@
             pinpoint.setHeading(0,AngleUnit.RADIANS);
             pinpoint.recalibrateIMU();
             pinpoint.resetPosAndIMU();
-            pinpoint.resetDeviceConfigurationForOpMode();
-            pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.RADIANS,0));
+//            pinpoint.resetDeviceConfigurationForOpMode();
+//            pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.RADIANS,0));
 
         }
 

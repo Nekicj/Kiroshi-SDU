@@ -27,10 +27,10 @@ public class TurretPIDKotak extends LinearOpMode {
     private int fullRotations = 0;
     private double continuousAngle = 0;
 
-    public static double MIN_TURRET_ANGLE = -90;
-    public static double MAX_TURRET_ANGLE = 90;
-    public static double MIN_CONTINUOUS = -412;
-    public static double MAX_CONTINUOUS = 490;
+    public static double MIN_TURRET_ANGLE = -180;
+    public static double MAX_TURRET_ANGLE = 180;
+    public static double MIN_CONTINUOUS = -537;
+    public static double MAX_CONTINUOUS = 700;
     public static double ZERO_CONTINUOUS = 40;
 
     public static double targetTurretAngle = 0;

@@ -18,7 +18,7 @@ public class TurretController {
 
     private Pose thisRobotPose = new Pose(0,0,0);
 
-    public static double kP = 0.005;
+    public static double kP = 0.012;
     public static double kI = 0;
     public static double kD = 0;
     public static double tolerance = 5;
@@ -29,8 +29,8 @@ public class TurretController {
     public static double MAX_CONTINUOUS = 700;
     public static double ZERO_CONTINUOUS = 123;
 
-    public static double TARGET_X = 120;
-    public static double TARGET_Y = 93;
+    public static double TARGET_X = -8.87;
+    public static double TARGET_Y = 33.91;
 
     private double lastRawAngle = 0;
     private int fullRotations = 0;
@@ -376,6 +376,34 @@ public class TurretController {
         while (angle < -180) angle += 360;
         return angle;
     }
+
+    public boolean isAtTargetAngle(double tolerance) {
+        double currentAngle = getCurrentAngle();
+        return Math.abs(currentAngle - targetTurretAngle) <= tolerance;
+    }
+
+    public boolean isAtTargetAngle() {
+        return isAtTargetAngle(tolerance);
+    }
+
+    public boolean isAtAngle(double angle, double tolerance) {
+        double currentAngle = getCurrentAngle();
+        return Math.abs(currentAngle - angle) <= tolerance;
+    }
+
+    public boolean isInAngleRange(double minAngle, double maxAngle) {
+        double currentAngle = getCurrentAngle();
+        return currentAngle >= minAngle && currentAngle <= maxAngle;
+    }
+
+    public double getAngleError() {
+        return targetTurretAngle - getCurrentAngle();
+    }
+
+    public double getAbsoluteAngleError() {
+        return Math.abs(getAngleError());
+    }
+
 
     public void showTelemetry(Telemetry telemetry) {
         double fieldAngle = calculateFieldAngleToTarget(thisRobotPose.getX(), thisRobotPose.getY(), thisRobotPose.getHeading());
