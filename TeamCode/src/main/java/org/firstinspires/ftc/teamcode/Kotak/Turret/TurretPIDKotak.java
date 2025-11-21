@@ -14,6 +14,7 @@ public class TurretPIDKotak extends LinearOpMode {
 
     private AnalogInput encoder = null;
     private CRServo CrServo = null;
+    private CRServo CrServoLeft = null;
     private asmPIDController CRPID;
 
     public static double kP = 0.01;
@@ -41,6 +42,7 @@ public class TurretPIDKotak extends LinearOpMode {
 
         encoder = hardwareMap.get(AnalogInput.class, "encoder");
         CrServo = hardwareMap.get(CRServo.class, "turret_r");
+        CrServoLeft = hardwareMap.get(CRServo.class, "turret_l");
 
         lastRawAngle = getRawAngle();
         continuousAngle = lastRawAngle;
@@ -67,10 +69,13 @@ public class TurretPIDKotak extends LinearOpMode {
             if (!toTarget) {
                 if (gamepad1.y) {
                     CrServo.setPower(1);
+                    CrServoLeft.setPower(1);
                 } else if (gamepad1.b) {
                     CrServo.setPower(-1);
+                    CrServoLeft.setPower(-1);
                 } else {
                     CrServo.setPower(0);
+                    CrServoLeft.setPower(0);
                 }
             } else {
                 double targetContinuous = turretToContinuousAngle(targetTurretAngle);
@@ -79,6 +84,7 @@ public class TurretPIDKotak extends LinearOpMode {
                 servoPower = CRPID.calculate(getContinuousAngle());
                 servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
                 CrServo.setPower(-servoPower);
+                CrServoLeft.setPower(-servoPower);
             }
 
             updateTargetAngle();

@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,8 +17,6 @@ import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-import java.util.List;
-
 
 @Config
 @TeleOp(name = "Solo TelePopus",group = "Competition")
@@ -29,16 +26,27 @@ public class ogreOp extends LinearOpMode {
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
 
-    private double targetVelocityToCheck = asmConfig.motorVelocityCloseTeleop;
-    private double offset = asmConfig.motorOffsetCloseTeleop;
+    private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
+    private double offset = asmConfig.motorOffsetClose;
     private boolean toArtifact = false;
     private boolean isCloseScore = true;
     private boolean isShooting = false;
+    private boolean isTurretFieldCentric = true;
+    private boolean isRobotCentric = false;
+
 
     private PathChain pathToScore = null;
     private Pose poseScore = new Pose(0,0,0);
 
-    public static double targetTurretAngle = 39;
+    public static double targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
+    public static double targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
+
+    public static double targetTurretAngleCloseRobotCentric = asmConfig.targetTurretCloseRobotCentric;
+    public static double targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
+
+    private Pose poseAfterAuto = new Pose(121.3,-9.85,-3.13);
+    private boolean isPoseUpdated = false;
+    public static double yawScalar = 1.000477;
 
     private Follower follower;
     @Override
@@ -46,19 +54,21 @@ public class ogreOp extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         follower.startTeleopDrive(true);
-        follower.setStartingPose(robotState.getPoseAfterAuto());
+//        poseAfterAuto = new Pose(robotState.getPoseAfterAuto().getX(),robotState.getPoseAfterAuto().getY(),0);
+        follower.setStartingPose(poseAfterAuto);
+        follower.setPose(poseAfterAuto);
 
         driver1 = new asmGamepadEx(gamepad1);
 
         niggantroller = new Niggantroller(hardwareMap,telemetry);
         niggantroller.setTurretGamepad(gamepad1);
         niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
-        niggantroller.setFieldAngleTarget(targetTurretAngle);
-        niggantroller.setRobotRelativeAngle(targetTurretAngle);
+        niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
+        niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
 
         baseController = new BaseController();
-        baseController.initialize(hardwareMap,true);
-
+        baseController.initialize(hardwareMap, true);
+        baseController.resetHeading(yawScalar);
 
         telemetry.addData("Status, ","Initialized");
         telemetry.addData("Pose: ",follower.getPose().toString());
@@ -71,8 +81,8 @@ public class ogreOp extends LinearOpMode {
 
         while (opModeIsActive()){
 //            hubs.forEach(LynxModule::clearBulkCache);
-            niggantroller.setFieldAngleTarget(targetTurretAngle);
-            niggantroller.setRobotRelativeAngle(targetTurretAngle);
+            niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
+            niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
             driver1.update();
 
             double forward = -gamepad1.left_stick_y;
@@ -91,15 +101,37 @@ public class ogreOp extends LinearOpMode {
 
             follower.update();
 
-            follower.setTeleOpDrive(
-                    forward ,
-                    strafe ,
-                    rotate *0.6,
-                    false
-            );
+            if(!driver1.isLeftTriggerDown()){
+                follower.setTeleOpDrive(
+                        forward ,
+                        strafe ,
+                        rotate *0.6,
+                        isRobotCentric
+                );
+            }else{
+                follower.setTeleOpDrive(
+                        0 ,
+                        0 ,
+                        0,
+                        isRobotCentric
+                );
+            }
+
+            if(!isPoseUpdated){
+                follower.setPose(poseAfterAuto);
+                isPoseUpdated = true;
+            }
+
 
             if(driver1.isXPressed()){
                 isShooting = !isShooting;
+            }
+
+            if(driver1.isAPressed()){
+                isTurretFieldCentric = !isTurretFieldCentric;
+            }
+            if(driver1.isYPressed()){
+                isRobotCentric = !isRobotCentric;
             }
 
 
@@ -126,15 +158,33 @@ public class ogreOp extends LinearOpMode {
             }
 
             if(isCloseScore){
-                niggantroller.setDirectionPos(ShooterControllerPIDVSA.ServosPos.DIRECTION_DOWN.getPos());
+                niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
+                if(isTurretFieldCentric){
+                    niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
+                    niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
+                }else{
+                    niggantroller.setTurretMode(TurretController.TurretMode.ROBOT_RELATIVE);
+                    niggantroller.setFieldAngleTarget(targetTurretAngleCloseRobotCentric);
+                }
+
+
                 targetVelocityToCheck = asmConfig.motorVelocityClose;
                 offset = asmConfig.motorOffsetClose;
                 niggantroller.setShooterVelocity(targetVelocityToCheck);
             }else{
+
                 targetVelocityToCheck = asmConfig.motorVelocityLong;
                 offset = asmConfig.motorOffsetLong;
                 niggantroller.setShooterVelocity(targetVelocityToCheck);
-                niggantroller.setDirectionPos(ShooterControllerPIDVSA.ServosPos.DIRECTION_DOWN.getPos());
+                niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoHigh);
+
+                if(isTurretFieldCentric){
+                    niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
+                    niggantroller.setFieldAngleTarget(targetTurretAngleLongFieldCentric);
+                }else{
+                    niggantroller.setTurretMode(TurretController.TurretMode.ROBOT_RELATIVE);
+                    niggantroller.setFieldAngleTarget(targetTurretAngleLongRobotCentric);
+                }
             }
 
             if(driver1.isRightStickButtonPressed()){
@@ -144,8 +194,10 @@ public class ogreOp extends LinearOpMode {
             }
 
             if(driver1.isBackPressed()){
-                baseController.resetHeading();
-                follower.setStartingPose(new Pose(0,0,0));
+//                baseController.resetHeading();
+                Pose followerPose = follower.getPose();
+                baseController.resetHeading(yawScalar);
+                follower.setPose(new Pose(followerPose.getX(),followerPose.getY(),0));
             }
 
             if(niggantroller.checkShooterVelocity(targetVelocityToCheck,offset)){
@@ -156,6 +208,7 @@ public class ogreOp extends LinearOpMode {
 
             niggantroller.update(gamepad2.back);
             niggantroller.updateTurret(follower.getPose());
+            robotState.updatePose(follower.getPose());
 //            niggantroller.showTurretTelemetry(telemetry);
             telemetry.addData("X",follower.getPose().getX());
             telemetry.addData("Y",follower.getPose().getY());

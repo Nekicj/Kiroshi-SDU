@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Kotak.Turret;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
+@Disabled
 @TeleOp(name = "Turret Auto aim FIXED", group = "Competition")
 public class TurretPIDNFieldTurretControllerKotak extends LinearOpMode {
 

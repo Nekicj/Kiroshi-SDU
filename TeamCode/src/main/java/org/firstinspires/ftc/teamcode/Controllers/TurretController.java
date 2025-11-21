@@ -14,19 +14,20 @@ import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 public class TurretController {
     private AnalogInput encoder;
     private CRServo turretServo;
+    private CRServo turretServoLeft;
     private asmPIDController turretPID;
 
     private Pose thisRobotPose = new Pose(0,0,0);
 
-    public static double kP = 0.012;
+    public static double kP = 0.01;
     public static double kI = 0;
     public static double kD = 0;
     public static double tolerance = 5;
 
     public static double MIN_TURRET_ANGLE = -180;
     public static double MAX_TURRET_ANGLE = 180;
-    public static double MIN_CONTINUOUS = -537;
-    public static double MAX_CONTINUOUS = 700;
+    public static double MIN_CONTINUOUS = -517;
+    public static double MAX_CONTINUOUS = 717;
     public static double ZERO_CONTINUOUS = 123;
 
     public static double TARGET_X = -8.87;
@@ -65,6 +66,7 @@ public class TurretController {
 
         encoder = hardwareMap.get(AnalogInput.class, encoderName);
         turretServo = hardwareMap.get(CRServo.class, turretServoName);
+        turretServoLeft = hardwareMap.get(CRServo.class,"turret_l");
 
         lastRawAngle = getRawAngle();
         continuousAngle = lastRawAngle;
@@ -83,6 +85,7 @@ public class TurretController {
 
         if (calibrationMode) {
             turretServo.setPower(calibrationJoystickInput);
+            turretServoLeft.setPower(calibrationJoystickInput);
         } else {
             switch (currentMode) {
                 case FIELD_TARGET:
@@ -108,6 +111,7 @@ public class TurretController {
 
         if (calibrationMode) {
             turretServo.setPower(calibrationJoystickInput);
+            turretServoLeft.setPower(calibrationJoystickInput);
         } else {
             switch (currentMode) {
                 case FIELD_TARGET:
@@ -186,6 +190,7 @@ public class TurretController {
         double servoPower = turretPID.calculate(currentContinuous);
         servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
         turretServo.setPower(-servoPower);
+        turretServoLeft.setPower(-servoPower);
     }
 
 
@@ -205,6 +210,7 @@ public class TurretController {
         double servoPower = turretPID.calculate(currentContinuous);
         servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
         turretServo.setPower(-servoPower);
+        turretServoLeft.setPower(-servoPower);
     }
 
 
@@ -218,6 +224,7 @@ public class TurretController {
         double servoPower = turretPID.calculate(currentContinuous);
         servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
         turretServo.setPower(-servoPower);
+        turretServoLeft.setPower(-servoPower);
     }
 
 
@@ -297,6 +304,7 @@ public class TurretController {
         double servoPower = turretPID.calculate(currentContinuous);
         servoPower = Math.max(-1.0, Math.min(1.0, servoPower));
         turretServo.setPower(-servoPower);
+        turretServoLeft.setPower(-servoPower);
     }
 
     private void updateContinuousAngle() {

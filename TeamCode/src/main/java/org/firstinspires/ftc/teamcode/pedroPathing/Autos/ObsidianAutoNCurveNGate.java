@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Config
+@Disabled
 @Autonomous(name = "12+0 gate n curve",group = "Competition Auto")
 public class ObsidianAutoNCurveNGate extends OpMode {
     private static final Logger log = LoggerFactory.getLogger(ObsidianAutoNCurveNGate.class);
@@ -192,7 +194,7 @@ public class ObsidianAutoNCurveNGate extends OpMode {
     @Override
     public void init(){
         asmconfig = new asmConfig();
-        isRed = asmConfig.isRed;
+        isRed = asmConfig.isBlue;
 
         if(isRed){
             if(!isLongScore){

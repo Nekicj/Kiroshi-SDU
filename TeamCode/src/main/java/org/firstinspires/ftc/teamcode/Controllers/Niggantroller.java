@@ -18,7 +18,7 @@ public class Niggantroller {
 
 
     private double intakeStage = -2;
-    public static double TIME_BETWEEN_SHOOT = 0.18;
+    public static double TIME_BETWEEN_SHOOT = 0.14;
     public static double TIME_BETWEEN_SHOOT_AUTO = 0.18;
 
 
@@ -30,7 +30,7 @@ public class Niggantroller {
         turretController = new TurretController();
 
         intakeController.initialize(hardwareMap,"intake_1","intake_2");
-        shooterController.initialize(hardwareMap,"shooter_l","shooter_r","l_angle","r_angle",ShooterControllerPIDVSA.ServosPos.DIRECTION_UP.getPos());
+        shooterController.initialize(hardwareMap,"shooter_l","shooter_r","l_angle","r_angle",ShooterControllerPIDVSA.servoClose);
         turretController.initialize(hardwareMap,"encoder","turret_r");
 
 //        shooterController.setAutoTuningEnabled(true);

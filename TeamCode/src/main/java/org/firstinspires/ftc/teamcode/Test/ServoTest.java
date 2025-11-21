@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
 @Config
 @TeleOp(name="servo standard pos",group = "Test")
 public class ServoTest extends LinearOpMode {

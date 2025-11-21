@@ -2,6 +2,7 @@
 
     import com.acmerobotics.dashboard.config.Config;
 
+    import com.pedropathing.geometry.Pose;
     import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
     import com.qualcomm.robotcore.hardware.DcMotor;
     import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -188,14 +189,26 @@
             targetHeading = pinpoint.getHeading(AngleUnit.RADIANS);
             headingPIDF.setSetPoint(targetHeading);
         }
-        public void resetHeading(){
+        public void resetHeading(double yawScalar){
             pinpoint.setHeading(0,AngleUnit.RADIANS);
             pinpoint.recalibrateIMU();
+            pinpoint.setYawScalar(1);
+            pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+//            pinpoint.resetDeviceConfigurationForOpMode();
             pinpoint.resetPosAndIMU();
 //            pinpoint.resetDeviceConfigurationForOpMode();
 //            pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.RADIANS,0));
 
         }
+        public void resetHeading(Pose robotPose){
+            pinpoint.setHeading(0,AngleUnit.RADIANS);
+            pinpoint.recalibrateIMU();
+//            pinpoint.resetPosAndIMU();
+//            pinpoint.resetDeviceConfigurationForOpMode();
+//            pinpoint.setPosition(new Pose2D(DistanceUnit.CM,0,0,AngleUnit.RADIANS,0));
+
+        }
+
 
         private void driveWithMotorPowers(double frontLeft, double frontRight,
                                           double backLeft, double backRight) {

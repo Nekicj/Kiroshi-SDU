@@ -8,6 +8,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Disabled
 @Config
 @Autonomous(name = "12+0 without activator curve",group = "Competition Auto")
 public class ObsidianAutoNCurve extends OpMode {
@@ -167,7 +169,7 @@ public class ObsidianAutoNCurve extends OpMode {
 
     @Override
     public void init(){
-        isRed = asmConfig.isRed;
+        isRed = asmConfig.isBlue;
 
         if(isRed){
             if(!isLongScore){

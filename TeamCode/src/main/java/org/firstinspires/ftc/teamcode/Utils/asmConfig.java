@@ -12,16 +12,19 @@ public class asmConfig {
         headingAfterAuto = heading;
     }
     public static int pattern = 0;
-    public static boolean isRed = false;
+    public static boolean isBlue = false;
 
-    public static double motorVelocityClose = 1270;
+    public static double motorVelocityClose = 1120;
     public static double motorOffsetClose = 50;
 
-    public static double motorVelocityCloseTeleop = 3500;
-    public static double motorOffsetCloseTeleop = 200;
+    public static double motorVelocityLong = 1500;
+    public static double motorOffsetLong = 50;
 
-    public static double motorVelocityLong = 1900;
-    public static double motorOffsetLong = 100;
+    public static double targetTurretLongRobotCentric = -23;
+    public static double targetTurretCloseRobotCentric = 128;
+
+    public static double targetTurretLongFieldCentric = 67;
+    public static double targetTurretCloseFieldCentric = 39;
 
     public static Pose scorePose = new Pose(34.801,4.545,-2.35);
 

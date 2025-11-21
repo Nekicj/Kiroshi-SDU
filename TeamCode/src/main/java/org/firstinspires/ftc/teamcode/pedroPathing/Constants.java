@@ -33,22 +33,22 @@ public class Constants {
             .forwardZeroPowerAcceleration(-35.64661499080001)
             .lateralZeroPowerAcceleration(-75.37480738371073)
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.06,
+                    0.055,
                     0,
                     0.01,
-                    0.03
+                    0.025
             ))
 //            .translationalPIDFCoefficients(new PIDFCoefficients(
-//                    0.08,
+//                    0.08,dw3
 //                    0,
 //                    0.01,
 //                    0.04
 //            ))
             .translationalPIDFSwitch(5)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
-                    0.09,
+                    0.06,
                     0,
-                    0,                     //0.004,
+                    0.004,                     //0.004,
                     0.04                //0.02
             ))
 //            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
@@ -106,6 +106,7 @@ public class Constants {
             .turnHeadingErrorThreshold(0.005)
             .automaticHoldEnd(true)
 
+
             .centripetalScaling(0.0005);
 
 
@@ -113,6 +114,7 @@ public class Constants {
             .forwardPodY(5.315)
             .strafePodX(1.181)
             .hardwareMapName("pinpoint")
+            .yawScalar(1.000477)
 
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
 
@@ -127,7 +129,7 @@ public class Constants {
             1,
             1,
             100,
-            0.9,
+            0.7,
             10,
             0.8
     );

@@ -19,13 +19,13 @@ public class ShooterControllerPIDVSA {
 
     private double directionPos = 0.7;
 
-    public static double kS = 0.5;    // Volts - static friction
-    public static double kV = 0.0052;  // Volts per RPM - velocity constant
+    public static double kS = 1.1;    // Volts - static friction
+    public static double kV = 0.0048;  // Volts per RPM - velocity constant
     public static double kA = 0.001;  // Volts per RPM/s - acceleration constant
 
-    public static double kP = 0.04;
+    public static double kP = 0.025;
     public static double kI = 0.0;
-    public static double kD = 0.0;
+    public static double kD = 0;
 
     private double targetVelocityRPM = 0;
     private double lastError = 0;
@@ -34,6 +34,10 @@ public class ShooterControllerPIDVSA {
     private long lastTime = 0;
 
     private static final double NOMINAL_VOLTAGE = 12.5;
+
+    public static double servoClose = 0.45;
+    public static double servoMedium = 0.45;
+    public static double servoHigh = 0.45;
 
     public static enum ServosPos{
         DIRECTION_DOWN(0.45),
