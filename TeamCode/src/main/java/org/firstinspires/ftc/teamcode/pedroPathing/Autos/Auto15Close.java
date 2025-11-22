@@ -37,7 +37,7 @@ public class Auto15Close extends OpMode {
     private double targetTurretAngleLong = -25;
     public static double setShooterVelocityAutoLong = 1520;
 
-    public static double ShooterVelocityClose = 1150; //1145
+    private double ShooterVelocityClose = 1150; //1145
 
 
     private  Pose nullPose = new Pose(0,0,0);
@@ -130,25 +130,16 @@ public class Auto15Close extends OpMode {
                 .build();
 
 
-        if(isBlue){
-            take2ToScore = follower.pathBuilder()
-                    .addPath(new BezierLine(take2PoseFinal,gate))
-                    .setLinearHeadingInterpolation(take2PoseFinal.getHeading(),gate.getHeading())
+        take2ToScore = follower.pathBuilder()
+                .addPath(new BezierLine(take2PoseFinal,gate))
+                .setLinearHeadingInterpolation(take2PoseFinal.getHeading(),gate.getHeading())
 
-                    .addPath(new BezierLine(gate,scorePose))
-                    .setLinearHeadingInterpolation(gate.getHeading(),scorePose.getHeading(),0.7)
-                    .setBrakingStart(0.7)
-                    .setBrakingStrength(0.5)
-                    .setTValueConstraint(0.8)
-                    .build();
-        }else{
-            take2ToScore = follower.pathBuilder()
-                    .addPath(new BezierLine(take2PoseFinal,scorePose))
-                    .setLinearHeadingInterpolation(take2PoseFinal.getHeading(),scorePose.getHeading(),0.7)
-                    .setBrakingStart(0.7)
-                    .setBrakingStrength(0.5)
-                    .build();
-        }
+                .addPath(new BezierLine(gate,scorePose))
+                .setLinearHeadingInterpolation(gate.getHeading(),scorePose.getHeading(),0.7)
+                .setBrakingStart(0.7)
+                .setBrakingStrength(0.5)
+                .setTValueConstraint(0.8)
+                .build();
 
 
 
@@ -229,7 +220,7 @@ public class Auto15Close extends OpMode {
             scorePose = new Pose(26.838,5.141,-0);
 
             take1PoseStart = new Pose(38.61,-3.483,-1.57);
-            take1PoseFinal = new Pose(38.61,-25.8,-1.57);
+            take1PoseFinal = new Pose(38.61,-23.8,-1.57);
 
             take2PoseStart = new Pose(65.019,-1.9428,-1.57);
             take2PoseFinal = new Pose(65.019,-32.8,-1.57);
@@ -248,6 +239,8 @@ public class Auto15Close extends OpMode {
             targetTurretAngle -= 6;
             targetTurretAngleLong *=-1;
 
+            ShooterVelocityClose = 1110;
+
         }else{
             nullPose = new Pose(0,0,0);
             startPose = new Pose(5.56,19.21,2.36);
@@ -256,10 +249,12 @@ public class Auto15Close extends OpMode {
             scorePose = new Pose(28.854,-8.513,0);
 
             take1PoseStart = new Pose(37.24,-8.513,1.57);
-            take1PoseFinal = new Pose(37.24,24.8,1.57);
+            take1PoseFinal = new Pose(37.24,21.8,1.57);
 
             take2PoseStart = new Pose(68.23,-8.513,1.57);
             take2PoseFinal = new Pose(68.23,28.8,1.57);
+
+            gate = new Pose(56.642,23.719,0);
 
 
             take3PoseStart = new Pose(92,-8.513,1.57);
@@ -273,6 +268,9 @@ public class Auto15Close extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
+
+        telemetry.addData("isBlue: ",isBlue);
+        telemetry.update();
 
 
 
@@ -308,7 +306,7 @@ public class Auto15Close extends OpMode {
                 }
                 break;
             case 2:
-                if(!follower.isBusy() && niggtimer.milliseconds() > 1300){
+                if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
                     follower.followPath(score1ToTake1);
                     pathState = 3;
                     niggantroller.toShoot(false);
@@ -347,7 +345,7 @@ public class Auto15Close extends OpMode {
                 }
                 break;
             case 6:
-                if(!follower.isBusy() && niggtimer.milliseconds() > 1300){
+                if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
                     follower.followPath(scoreToTake2);
                     niggantroller.toShoot(false);
                     niggantroller.intakeEpt(1);
@@ -379,7 +377,7 @@ public class Auto15Close extends OpMode {
                 }
                 break;
             case 9:
-                if(!follower.isBusy() && niggtimer.milliseconds() > 1300){
+                if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
                     follower.followPath(score2ToTake3);
                     niggantroller.toShoot(false);
                     niggantroller.intakeEpt(1);
@@ -412,7 +410,7 @@ public class Auto15Close extends OpMode {
                 }
                 break;
             case 12:
-                if(!follower.isBusy()&&niggtimer.milliseconds() > 1300){
+                if(!follower.isBusy()&&niggtimer.milliseconds() > 1500){
                     pathState = 13;
                     follower.followPath(scoreToShoot5);
 
@@ -442,7 +440,7 @@ public class Auto15Close extends OpMode {
                 }
                 break;
             case 15:
-                if(!follower.isBusy() && niggtimer.milliseconds() > 1300){
+                if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
                     follower.followPath(scoreToParking);
                     niggantroller.intakeEpt(1);
                     pathState =16;

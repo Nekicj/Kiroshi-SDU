@@ -33,24 +33,27 @@ public class ogreOp extends LinearOpMode {
     private boolean isShooting = false;
     private boolean isTurretFieldCentric = true;
     private boolean isRobotCentric = false;
+    private boolean isBlue = false;
+    private boolean isTurretNull = false;
 
 
     private PathChain pathToScore = null;
     private Pose poseScore = new Pose(0,0,0);
 
-    public static double targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
-    public static double targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
+    private double targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
+    private double targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
 
-    public static double targetTurretAngleCloseRobotCentric = asmConfig.targetTurretCloseRobotCentric;
-    public static double targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
+    private double targetTurretAngleCloseRobotCentric = 0;
+    private double targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
 
-    private Pose poseAfterAuto = new Pose(121.3,-9.85,-3.13);
+    private Pose poseAfterAuto = new Pose(0,0,0);
     private boolean isPoseUpdated = false;
     public static double yawScalar = 1.000477;
 
     private Follower follower;
     @Override
     public void runOpMode() {
+        isBlue = asmConfig.isBlue;
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         follower.startTeleopDrive(true);
@@ -63,12 +66,19 @@ public class ogreOp extends LinearOpMode {
         niggantroller = new Niggantroller(hardwareMap,telemetry);
         niggantroller.setTurretGamepad(gamepad1);
         niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
+
+        if(isBlue){
+
+        }
+
         niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
         niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
 
         baseController = new BaseController();
         baseController.initialize(hardwareMap, true);
         baseController.resetHeading(yawScalar);
+
+
 
         telemetry.addData("Status, ","Initialized");
         telemetry.addData("Pose: ",follower.getPose().toString());
@@ -83,6 +93,23 @@ public class ogreOp extends LinearOpMode {
 //            hubs.forEach(LynxModule::clearBulkCache);
             niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
             niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
+
+            if(isBlue){
+                targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentricBlue;
+                targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentricBlue;
+
+                targetTurretAngleCloseRobotCentric = 0;
+                targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentricBlue;
+            }else{
+                targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
+                targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
+
+                targetTurretAngleCloseRobotCentric = 0;
+                targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
+            }
+
+
+
             driver1.update();
 
             double forward = -gamepad1.left_stick_y;
@@ -130,8 +157,15 @@ public class ogreOp extends LinearOpMode {
             if(driver1.isAPressed()){
                 isTurretFieldCentric = !isTurretFieldCentric;
             }
+
+
+
             if(driver1.isYPressed()){
                 isRobotCentric = !isRobotCentric;
+            }
+
+            if(driver1.isBPressed()){
+
             }
 
 

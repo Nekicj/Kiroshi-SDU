@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
-@Autonomous(name = "12+0",group = "Competition")
-public class Auto12 extends OpMode {
+@Autonomous(name = "15+0 TuganJer",group = "Competition")
+public class Auto15NKotakJer extends OpMode {
     private Follower follower;
     private Timer pathTimer,acitionTimer,opModeTimer;
     private Niggantroller niggantroller;
@@ -34,6 +34,7 @@ public class Auto12 extends OpMode {
     private boolean isBlue = false;
 
     private double targetTurretAngle = 128;
+    private double targetTurretAngleLong = -25;
     public static double setShooterVelocityAutoLong = 1520;
 
     private double ShooterVelocityClose = 1150; //1145
@@ -42,12 +43,11 @@ public class Auto12 extends OpMode {
     private  Pose nullPose = new Pose(0,0,0);
     private  Pose startPose = null;
 
-//    private final Pose scorePose = new Pose(28.854,-8.513,0);
+    //    private final Pose scorePose = new Pose(28.854,-8.513,0);
     private  Pose scorePose = null;
+    private Pose gate = null;
 
     private  Pose take1PosePath = null;
-
-    private Pose gate = null;
 
     private  Pose take1PoseStart = null;
     private  Pose take1PoseFinal = null;
@@ -130,7 +130,6 @@ public class Auto12 extends OpMode {
                 .build();
 
 
-
         take2ToScore = follower.pathBuilder()
                 .addPath(new BezierLine(take2PoseFinal,gate))
                 .setLinearHeadingInterpolation(take2PoseFinal.getHeading(),gate.getHeading())
@@ -141,6 +140,8 @@ public class Auto12 extends OpMode {
                 .setBrakingStrength(0.5)
                 .setTValueConstraint(0.8)
                 .build();
+
+
 
 //        score2ToTake3 = follower.pathBuilder()
 //                .addPath(new BezierLine(scorePose,take3PosePath))
@@ -170,8 +171,12 @@ public class Auto12 extends OpMode {
                 .build();
 
         scoreToShoot5 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose,pathToTake5))
-                .setLinearHeadingInterpolation(scorePose.getHeading(),pathToTake5.getHeading(),0.7)
+                .addPath(new BezierLine(scorePose,gate))
+                .setLinearHeadingInterpolation(scorePose.getHeading(),gate.getHeading(),0.7)
+                .setTValueConstraint(0.8)
+
+                .addPath(new BezierLine(gate,pathToTake5))
+                .setLinearHeadingInterpolation(gate.getHeading(),pathToTake5.getHeading(),0.7)
                 .setTValueConstraint(0.8)
 
                 .addPath(new BezierLine(pathToTake5,take5Final))
@@ -213,22 +218,21 @@ public class Auto12 extends OpMode {
 
 
 
-
         if(isBlue){
             startPose = new Pose(2.224,-23.19,-2.30);
 
             scorePose = new Pose(26.838,5.141,-0);
 
             take1PoseStart = new Pose(38.61,-3.483,-1.57);
-            take1PoseFinal = new Pose(38.61,-25.8,-1.57);
+            take1PoseFinal = new Pose(38.61,-23.8,-1.57);
 
             take2PoseStart = new Pose(65.019,-1.9428,-1.57);
-            take2PoseFinal = new Pose(65.019,-30.8,-1.57);
+            take2PoseFinal = new Pose(65.019,-32.8,-1.57);
 
             gate = new Pose(56,-27.377,0);
 
             take3PoseStart = new Pose(84.9,-1.78,-1.57);
-            take3PoseFinal = new Pose(84.9,-30,-1.57);
+            take3PoseFinal = new Pose(84.9,-32,-1.57);
 
             pathToTake5 = new Pose(81.25,-33.631,-0.64);
             take5Final = new Pose(110,-35.4,-0.64);
@@ -236,11 +240,10 @@ public class Auto12 extends OpMode {
             shootPose5 = new Pose(111.17,15.15,-3.15);
 
             targetTurretAngle *= -1;
-
             targetTurretAngle -= 6;
+            targetTurretAngleLong *=-1;
 
             ShooterVelocityClose = 1110;
-
 
         }else{
             nullPose = new Pose(0,0,0);
@@ -249,24 +252,18 @@ public class Auto12 extends OpMode {
 //    private final Pose scorePose = new Pose(28.854,-8.513,0);
             scorePose = new Pose(28.854,-8.513,0);
 
-            take1PosePath = new Pose(43.7,1.59,0);
-
             take1PoseStart = new Pose(37.24,-8.513,1.57);
-            take1PoseFinal = new Pose(37.24,24.8,1.57);
-
-            take2PosePath = new Pose(67,1.59,0);
+            take1PoseFinal = new Pose(37.24,21.8,1.57);
 
             take2PoseStart = new Pose(68.23,-8.513,1.57);
             take2PoseFinal = new Pose(68.23,28.8,1.57);
 
             gate = new Pose(56.642,23.719,0);
 
-            take3PosePath = new Pose(90,1.59,0);
 
             take3PoseStart = new Pose(92,-8.513,1.57);
             take3PoseFinal = new Pose(92,27.8,1.57);
-
-            parking = new Pose(30,7.5,1.57);
+            ;
 
             pathToTake5 = new Pose(80.64,29.07,0.84);
             take5Final = new Pose(114.37,27.429,0.84);
@@ -276,8 +273,9 @@ public class Auto12 extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
 
-        telemetry.addData("isBlue: ", isBlue);
+        telemetry.addData("isBlue: ",isBlue);
         telemetry.update();
+
 
 
         buildPaths();
@@ -287,7 +285,6 @@ public class Auto12 extends OpMode {
         switch (pathState){
             case 0:
                 if(!follower.isBusy()){
-
                     follower.followPath(startToScore1);
                     pathState = 100;
                     niggantroller.intakeEpt(1);
@@ -417,11 +414,41 @@ public class Auto12 extends OpMode {
                 }
                 break;
             case 12:
+                if(!follower.isBusy()&&niggtimer.milliseconds() > 1500){
+                    pathState = 13;
+                    follower.followPath(scoreToShoot5);
+
+                    niggantroller.setShooterVelocity(ShooterVelocityClose);
+
+                    niggantroller.toShoot(true);
+                    niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
+                    niggantroller.intakeEpt(1);
+//                    targetTurretAngle = -25;
+//                    niggantr 6i9-+oller.setShooterVelocity(setShooterVelocityAutoLong);
+//                    shooterVelocityAuto = 1900;
+                }
+                break;
+            case 13:
+                if(!follower.isBusy()){
+                    niggtimer.reset();
+                    balltimer.reset();
+                    pathState =14;
+                }
+                break;
+            case 14:
+                if(!follower.isBusy() && niggtimer.milliseconds() > 900){
+                    niggantroller.intakeEpt(0);
+                    pathState = 15;
+                    niggtimer.reset();
+
+                }
+                break;
+            case 15:
                 if(!follower.isBusy() && niggtimer.milliseconds() > 1500){
                     follower.followPath(scoreToParking);
-                    targetTurretAngle = 20;
                     niggantroller.intakeEpt(1);
                     pathState =16;
+                    targetTurretAngle = 20;
                 }
                 break;
 

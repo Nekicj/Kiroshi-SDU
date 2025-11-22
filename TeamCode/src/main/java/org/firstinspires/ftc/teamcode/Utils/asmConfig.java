@@ -26,6 +26,12 @@ public class asmConfig {
     public static double targetTurretLongFieldCentric = 67;
     public static double targetTurretCloseFieldCentric = 39;
 
+    public static double targetTurretLongRobotCentricBlue = 22;
+    public static double targetTurretCloseRobotCentricBlue = 134;
+
+    public static double targetTurretLongFieldCentricBlue = -71;
+    public static double targetTurretCloseFieldCentricBlue = -39;
+
     public static Pose scorePose = new Pose(34.801,4.545,-2.35);
 
     public static Pose startPose = new Pose(12.333,-19.389,-2.34);
