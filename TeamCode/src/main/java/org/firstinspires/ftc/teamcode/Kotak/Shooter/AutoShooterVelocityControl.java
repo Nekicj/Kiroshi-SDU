@@ -74,7 +74,6 @@ public class AutoShooterVelocityControl extends LinearOpMode {
                 hardwareMap,
                 "shooter_left",
                 "shooter_right",
-                "servo_angle_left",
                 "servo_angle_right",
                 0.5
         );

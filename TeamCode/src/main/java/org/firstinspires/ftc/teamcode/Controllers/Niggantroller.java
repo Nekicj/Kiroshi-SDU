@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Controllers;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretController;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 
 @Config
@@ -15,23 +14,19 @@ public class Niggantroller {
     private ShooterControllerPIDVSA shooterController;
     private CommandScheduler outtakeScheduler;
     private TurretController turretController;
-
-
-    private double intakeStage = -2;
-    public static double TIME_BETWEEN_SHOOT = 0.14;
-    public static double TIME_BETWEEN_SHOOT_AUTO = 0.18;
-
-
+    private OchkoController ochkoController;
 
     public Niggantroller(HardwareMap hardwareMap,Telemetry newTelemetry){
         intakeController = new IntakeController();
         shooterController = new ShooterControllerPIDVSA();
         outtakeScheduler = new CommandScheduler();
-        turretController = new TurretController();
+//        turretController = new TurretController();
+        ochkoController = new OchkoController();
 
-        intakeController.initialize(hardwareMap,"intake_1","intake_2");
-        shooterController.initialize(hardwareMap,"shooter_l","shooter_r","l_angle","r_angle",ShooterControllerPIDVSA.servoClose);
-        turretController.initialize(hardwareMap,"encoder","turret_r");
+        intakeController.initialize(hardwareMap,"intake");
+        shooterController.initialize(hardwareMap,"shooter_l","shooter_r","r_angle",ShooterControllerPIDVSA.servoClose);
+        ochkoController.initialize(hardwareMap,"stopper","ramp",true);
+//        turretController.initialize(hardwareMap,"encoder","turret_r");
 
 //        shooterController.setAutoTuningEnabled(true);
     }
@@ -39,6 +34,8 @@ public class Niggantroller {
     private boolean isShooting = false;
 
     public static double shooterSpeed = asmConfig.motorVelocityClose;
+
+    private double intakeState = 0;
 
 
 
@@ -55,10 +52,7 @@ public class Niggantroller {
 
     }
 
-    // -2 stop intake
-    // -1 bluet
-    // 0 toUp
-    // 1 piet
+
 
     public void showTelemetry(Telemetry telemetry){
 
@@ -66,67 +60,20 @@ public class Niggantroller {
     }
     public void intakeEpt(double intakeState){
 
-        if(intakeStage == -2 && intakeState == -1){
-            intakeStage = intakeState;
-        }else if( intakeStage == -1 && intakeState == -1){
-            intakeStage = -2;
-        }
-        else if(intakeStage == -2 && intakeState == 0){
-            intakeStage = intakeState;
-        }else if( intakeStage == 0 && intakeState == 0){
-            intakeStage = -2;
-        }
-        else if(intakeStage == -2 && intakeState == 1){
-            intakeStage = intakeState;
-        }else if( intakeStage == 1 && intakeState == 1){
-            intakeStage = -2;
+        if(this.intakeState == intakeState){
+            this.intakeState = 0;
         }else{
-            intakeStage = intakeState;
+            this.intakeState = intakeState;
         }
 
-
-
-        if(intakeStage == -1){
-            intakeController.setIntakePower(-1);
-            intakeController.setSecIntakeMotor(1);
-
-        }else if(intakeStage == 0){
-            intakeController.setIntakePower(1);
-            intakeController.setSecIntakeMotor(-1);
-        }else if(intakeStage == 1){
-            intakeController.setIntakePower(1);
-            intakeController.setSecIntakeMotor(1);
-        }else{
-            intakeController.setIntakePower(0);
-            intakeController.setSecIntakeMotor(0);
-        }
+        intakeController.setIntakePower(this.intakeState);
     }
 
     public void setDirectionPos(double pos){
         shooterController.setDirectionPos(pos);
     }
 
-    public void toShoot(){
-        isShooting = !isShooting;
-        if(isShooting){
-            shooterController.setShooterVelocity(shooterSpeed);
-        }else{
-            shooterController.setShooterVelocity(0);
-        }
-    }
-    public void shootBall(){
-        outtakeScheduler.clearQueue();
-        outtakeScheduler.setAutoReset(false);
-
-        outtakeScheduler.scheduleCommand(()-> intakeEpt(0));
-        outtakeScheduler.scheduleDelay(TIME_BETWEEN_SHOOT);
-        outtakeScheduler.scheduleCommand(()-> intakeEpt(0));
-
-        outtakeScheduler.scheduleCommand(()-> intakeEpt(1));
-
-        outtakeScheduler.start();
-    }
-    public void toShoot(boolean isShoot){
+    public void toShootShooter(boolean isShoot){
         isShooting = isShoot;
         if(isShooting){
             shooterController.setShooterVelocity(shooterSpeed);
@@ -134,6 +81,25 @@ public class Niggantroller {
             shooterController.setShooterVelocity(0);
         }
     }
+
+    public void shootBall(boolean toShoot){
+        if(toShoot){
+            intakeController.setIntakePower(-1);
+            ochkoController.setStopper(false);
+        }else{
+            ochkoController.setStopper(true);
+        }
+
+    }
+
+    public void setRamp(boolean rampOn){
+        if(rampOn){
+            ochkoController.setRamp(true);
+        }else{
+            ochkoController.setRamp(false);
+        }
+    }
+//    161 91
 
 
     public void showShooterTelemetry(Telemetry telemetry){
@@ -147,48 +113,6 @@ public class Niggantroller {
     public void setShooterVelocity(double velocity){
         shooterSpeed = velocity;
     }
-    public void setShooterCalibration(boolean isCalibrated){
-//        shooterController.setCalibrated(isCalibrated);
-    }
-
-
-
-    public void setTurretGamepad(Gamepad gamepad1){
-        turretController.setGamepad(gamepad1);
-    }
-
-    public void updateTurret(Pose robotPose){
-        turretController.update(robotPose);
-    }
-
-    public void setTurretAutoAimEnabled(boolean enabled){
-        turretController.setAutoAimEnabled(enabled);
-    }
-
-    public void showTurretTelemetry(Telemetry telemetry){
-        turretController.showTelemetry(telemetry);
-    }
-
-    public void setTurretTargetPoint(Pose targetPoint){
-        turretController.setTargetPoint(targetPoint.getPose().getX(),targetPoint.getPose().getY());
-    }
-    public void setTurretMode(TurretController.TurretMode mode){
-        turretController.setTurretMode(mode);
-    }
-    public void setFieldAngleTarget(double angle){
-        turretController.setFieldAngleTarget(angle);
-    }
-
-    public void setRobotRelativeAngle(double angle){
-        turretController.setRobotRelativeAngle(angle);
-    }
-
-    public boolean turretIsAtTarget(double tolerance){
-        return turretController.isAtTargetAngle(tolerance);
-    }
-
-
-
 
 
 //    public void toTakeSpecimen(){

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Kotak;
+package org.firstinspires.ftc.teamcode.Kotak.Vision;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;

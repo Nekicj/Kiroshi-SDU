@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Test;
+package org.firstinspires.ftc.teamcode.Kotak.TestOpModes.PartsTest;
 
 
 import com.acmerobotics.dashboard.config.Config;

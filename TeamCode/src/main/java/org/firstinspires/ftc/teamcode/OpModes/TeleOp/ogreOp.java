@@ -1,22 +1,73 @@
-package org.firstinspires.ftc.teamcode.OpModes;
+package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controllers.Niggantroller;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
-import org.firstinspires.ftc.teamcode.Controllers.TurretController;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorNew;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+/**
+ * Grind it, chop it, mix it, flava-it
+ * Bitch, I get it on my mind
+ * Smoke it, roll it, taste it, bang it
+ * Bitch, I can't get even high
+ * You can't get way that I'm flexin'
+ * Bitch, I'm on my demon time
+ * You know this my flow is extendin'
+ * I grab the shit of my crime
+ *
+ * Сломанный ублюдок — тот, кем мне никогда не стать
+ * Карманы жрут купюры, стоило мне лишь начать
+ * Словно Боинг, сука
+ * manera создан, чтоб летать
+ * Мне не тянули руку
+ * Я сам научился сиять
+ *
+ * Grind it, chop it, mix it, flava-it
+ * Bitch, I get it on my mind
+ * Smoke it, roll it, taste it, bang it
+ * Bitch, I can't get even high
+ * You can't get way that I'm flexin'
+ * Bitch, I'm on my demon time
+ * You know this my flow is extendin'
+ * I'm grab the shit of my crime
+ * Grind it, chop it, mix it, flava-it
+ * Bitch, I get it on my mind
+ * Smoke it, roll it, taste it, bang it
+ * Bitch, I can't get even high
+ * You can't get way that I'm flexin'
+ * Bitch, I'm on my demon time
+ * You know this my flow is еxtendin'
+ * I'm grab the shit of my crime
+ *
+ * Кто бы мог подумать, а
+ * Lil' shawty точно влюблена
+ * Тупит, но вроде не дура, а
+ * Запрыгнет со мной в бумер, а
+ * Я видел это тыщу раз
+ * Две тыщи слёз из тыщи глаз
+ * manеra bless, топлю на газ
+ * Ты знаешь, что скажу сейчас
+ *
+ * Grind it, chop it, mix it, flava-it
+ * Bitch, I get it on my mind
+ * Smoke it, roll it, taste it, bang it
+ * Bitch, I can't get even high
+ * You can't get way that I'm flexin'
+ * Bitch, I'm on my demon time
+ * You know this my flow is extendin'
+ * I'm grab the shit of my crime
+ */
 
 @Config
 @TeleOp(name = "Solo TelePopus",group = "Competition")
@@ -25,30 +76,19 @@ public class ogreOp extends LinearOpMode {
     private BaseController baseController;
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
+    private TurretControllerMotorNew turretController;
 
     private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
     private double offset = asmConfig.motorOffsetClose;
-    private boolean toArtifact = false;
     private boolean isCloseScore = true;
     private boolean isShooting = false;
     private boolean isTurretFieldCentric = true;
     private boolean isRobotCentric = false;
     private boolean isBlue = false;
-    private boolean isTurretNull = false;
-
-
-    private PathChain pathToScore = null;
-    private Pose poseScore = new Pose(0,0,0);
-
-    private double targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
-    private double targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
-
-    private double targetTurretAngleCloseRobotCentric = 0;
-    private double targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
+    private boolean isRamp = false;
 
     private Pose poseAfterAuto = new Pose(0,0,0);
-    private boolean isPoseUpdated = false;
-    public static double yawScalar = 1.000477;
+//    public static double yawScalar = 1.000477;
 
     private Follower follower;
     @Override
@@ -57,59 +97,30 @@ public class ogreOp extends LinearOpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         follower.startTeleopDrive(true);
-//        poseAfterAuto = new Pose(robotState.getPoseAfterAuto().getX(),robotState.getPoseAfterAuto().getY(),0);
         follower.setStartingPose(poseAfterAuto);
         follower.setPose(poseAfterAuto);
 
         driver1 = new asmGamepadEx(gamepad1);
 
         niggantroller = new Niggantroller(hardwareMap,telemetry);
-        niggantroller.setTurretGamepad(gamepad1);
-        niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
-
-        if(isBlue){
-
-        }
-
-        niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
-        niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
 
         baseController = new BaseController();
         baseController.initialize(hardwareMap, true);
-        baseController.resetHeading(yawScalar);
+        baseController.resetHeading(1);
+
+        turretController = new TurretControllerMotorNew();
+        turretController.initialize(hardwareMap,"turret");
+
+        turretController.setTurretMode(TurretControllerMotorNew.TurretMode.FIELD_TARGET);
 
 
 
         telemetry.addData("Status, ","Initialized");
         telemetry.addData("Pose: ",follower.getPose().toString());
 
-
-//        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
-//        hubs.forEach(hub -> hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL));
-
         waitForStart();
 
         while (opModeIsActive()){
-//            hubs.forEach(LynxModule::clearBulkCache);
-            niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
-            niggantroller.setRobotRelativeAngle(targetTurretAngleLongFieldCentric);
-
-            if(isBlue){
-                targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentricBlue;
-                targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentricBlue;
-
-                targetTurretAngleCloseRobotCentric = 0;
-                targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentricBlue;
-            }else{
-                targetTurretAngleCloseFieldCentric = asmConfig.targetTurretCloseFieldCentric;
-                targetTurretAngleLongFieldCentric = asmConfig.targetTurretLongFieldCentric;
-
-                targetTurretAngleCloseRobotCentric = 0;
-                targetTurretAngleLongRobotCentric = asmConfig.targetTurretLongRobotCentric;
-            }
-
-
-
             driver1.update();
 
             double forward = -gamepad1.left_stick_y;
@@ -144,11 +155,6 @@ public class ogreOp extends LinearOpMode {
                 );
             }
 
-            if(!isPoseUpdated){
-                follower.setPose(poseAfterAuto);
-                isPoseUpdated = true;
-            }
-
 
             if(driver1.isXPressed()){
                 isShooting = !isShooting;
@@ -164,42 +170,37 @@ public class ogreOp extends LinearOpMode {
                 isRobotCentric = !isRobotCentric;
             }
 
-            if(driver1.isBPressed()){
-
-            }
-
 
             if(isShooting){
-                niggantroller.toShoot(true);
+                niggantroller.toShootShooter(true);
 //                niggantroller.setTurretAutoAimEnabled(true);
             }else{
-                niggantroller.toShoot(false);
+                niggantroller.toShootShooter(false);
 //                niggantroller.setTurretAutoAimEnabled(false);
             }
 
 
             if(driver1.isRightBumperPressed()){
-                niggantroller.intakeEpt(1);
+                niggantroller.intakeEpt(-1);
+                niggantroller.shootBall(false);
             }
             if(driver1.isLeftBumperPressed()){
-                niggantroller.intakeEpt(-1);
+                niggantroller.intakeEpt(1);
             }
-            if(driver1.isDpadUpPressed()){
-                niggantroller.intakeEpt(0);
+            if(driver1.isRightTriggerPressed(0.15)){
+                niggantroller.shootBall(true);
+
             }
-            if(driver1.isRightTriggerPressed(0.2)){
-                niggantroller.shootBall();
+
+            if(driver1.isBPressed()){
+                isRamp = !isRamp;
+                niggantroller.setRamp(isRamp);
             }
+
+
 
             if(isCloseScore){
                 niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
-                if(isTurretFieldCentric){
-                    niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
-                    niggantroller.setFieldAngleTarget(targetTurretAngleCloseFieldCentric);
-                }else{
-                    niggantroller.setTurretMode(TurretController.TurretMode.ROBOT_RELATIVE);
-                    niggantroller.setFieldAngleTarget(targetTurretAngleCloseRobotCentric);
-                }
 
 
                 targetVelocityToCheck = asmConfig.motorVelocityClose;
@@ -211,14 +212,6 @@ public class ogreOp extends LinearOpMode {
                 offset = asmConfig.motorOffsetLong;
                 niggantroller.setShooterVelocity(targetVelocityToCheck);
                 niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoHigh);
-
-                if(isTurretFieldCentric){
-                    niggantroller.setTurretMode(TurretController.TurretMode.FIELD_ANGLE);
-                    niggantroller.setFieldAngleTarget(targetTurretAngleLongFieldCentric);
-                }else{
-                    niggantroller.setTurretMode(TurretController.TurretMode.ROBOT_RELATIVE);
-                    niggantroller.setFieldAngleTarget(targetTurretAngleLongRobotCentric);
-                }
             }
 
             if(driver1.isRightStickButtonPressed()){
@@ -230,7 +223,7 @@ public class ogreOp extends LinearOpMode {
             if(driver1.isBackPressed()){
 //                baseController.resetHeading();
                 Pose followerPose = follower.getPose();
-                baseController.resetHeading(yawScalar);
+//                baseController.resetHeading(yawScalar);
                 follower.setPose(new Pose(followerPose.getX(),followerPose.getY(),0));
             }
 
@@ -241,7 +234,7 @@ public class ogreOp extends LinearOpMode {
 
 
             niggantroller.update(gamepad2.back);
-            niggantroller.updateTurret(follower.getPose());
+            turretController.update(follower.getPose());
             robotState.updatePose(follower.getPose());
 //            niggantroller.showTurretTelemetry(telemetry);
             telemetry.addData("X",follower.getPose().getX());

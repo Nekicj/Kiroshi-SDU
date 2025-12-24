@@ -13,7 +13,6 @@
     public class ShooterControllerPIDVSA {
         private DcMotorEx shooterMotorLeft;
         private DcMotorEx shooterMotorRight;
-        private Servo servol = null;
         private Servo servor = null;
         private VoltageSensor voltageSensor;
 
@@ -45,13 +44,13 @@
 
         private static final double NOMINAL_VOLTAGE = 12.5;
 
-        public static double servoClose = 0.45;
+        public static double servoClose = 0.63;
         public static double servoMedium = 0.45;
-        public static double servoHigh = 0.45;
+        public static double servoHigh = 0.3;
 
         public static enum ServosPos{
-            DIRECTION_DOWN(0.45),
-            DIRECTION_UP(0.5);
+            DIRECTION_DOWN(0.6),
+            DIRECTION_UP(0.3);
 
 
             private final double position;
@@ -61,15 +60,13 @@
             public double getPos() {return position;}
         }
 
-        public void initialize(HardwareMap hardwareMap, String shooterMotorLeftName, String shooterMotorRightName, String servoAngleLeftName, String servoAngleRightName,double pos) {
+        public void initialize(HardwareMap hardwareMap, String shooterMotorLeftName, String shooterMotorRightName, String servoAngleRightName,double pos) {
             shooterMotorLeft = hardwareMap.get(DcMotorEx.class, shooterMotorLeftName);
             shooterMotorRight = hardwareMap.get(DcMotorEx.class, shooterMotorRightName);
 
-            servol = hardwareMap.get(Servo.class,servoAngleLeftName);
             servor = hardwareMap.get(Servo.class,servoAngleRightName);
             servor.setDirection(Servo.Direction.REVERSE);
 
-            servol.setPosition(pos);
             servor.setPosition(pos);
 
             voltageSensor = hardwareMap.voltageSensor.iterator().next();
@@ -98,7 +95,6 @@
         }
 
         public void powDirectionPos(){
-            servol.setPosition(directionPos);
             servor.setPosition(directionPos);
         }
         public void update() {
