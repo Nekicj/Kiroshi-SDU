@@ -3,15 +3,11 @@ package org.firstinspires.ftc.teamcode.Kotak.TestOpModes;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorNew;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
 @Config

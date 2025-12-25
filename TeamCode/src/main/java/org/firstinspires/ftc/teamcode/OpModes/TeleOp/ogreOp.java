@@ -10,7 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controllers.Niggantroller;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorNew;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotor;
+import org.firstinspires.ftc.teamcode.OpModes.Autonomous.FieldConstants;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
@@ -76,13 +77,13 @@ public class ogreOp extends LinearOpMode {
     private BaseController baseController;
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
-    private TurretControllerMotorNew turretController;
+    private TurretControllerMotor turretController;
 
     private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
     private double offset = asmConfig.motorOffsetClose;
     private boolean isCloseScore = true;
     private boolean isShooting = false;
-    private boolean isTurretFieldCentric = true;
+    private boolean isTurretFieldCentric = false;
     private boolean isRobotCentric = false;
     private boolean isBlue = false;
     private boolean isRamp = false;
@@ -108,10 +109,11 @@ public class ogreOp extends LinearOpMode {
         baseController.initialize(hardwareMap, true);
         baseController.resetHeading(1);
 
-        turretController = new TurretControllerMotorNew();
+        turretController = new TurretControllerMotor();
         turretController.initialize(hardwareMap,"turret");
 
-        turretController.setTurretMode(TurretControllerMotorNew.TurretMode.FIELD_TARGET);
+        turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_TARGET);
+        turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
 
 
 
@@ -164,6 +166,13 @@ public class ogreOp extends LinearOpMode {
                 isTurretFieldCentric = !isTurretFieldCentric;
             }
 
+            if(isTurretFieldCentric){
+                turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_ANGLE);
+            }else{
+                turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_TARGET);
+
+            }
+
 
 
             if(driver1.isYPressed()){
@@ -199,14 +208,18 @@ public class ogreOp extends LinearOpMode {
 
 
 
+
+
             if(isCloseScore){
                 niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
+                turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
 
 
                 targetVelocityToCheck = asmConfig.motorVelocityClose;
                 offset = asmConfig.motorOffsetClose;
                 niggantroller.setShooterVelocity(targetVelocityToCheck);
             }else{
+                turretController.setFieldAngleTarget(asmConfig.targetTurretLongFieldCentric);
 
                 targetVelocityToCheck = asmConfig.motorVelocityLong;
                 offset = asmConfig.motorOffsetLong;
@@ -221,10 +234,10 @@ public class ogreOp extends LinearOpMode {
             }
 
             if(driver1.isBackPressed()){
-//                baseController.resetHeading();
-                Pose followerPose = follower.getPose();
+                baseController.resetHeading(1);
+//                Pose followerPose = follower.getPose();
 //                baseController.resetHeading(yawScalar);
-                follower.setPose(new Pose(followerPose.getX(),followerPose.getY(),0));
+//                follower.setPose(new Pose(followerPose.getX(),followerPose.getY(),0));
             }
 
             if(niggantroller.checkShooterVelocity(targetVelocityToCheck,offset)){
@@ -235,12 +248,13 @@ public class ogreOp extends LinearOpMode {
 
             niggantroller.update(gamepad2.back);
             turretController.update(follower.getPose());
-            robotState.updatePose(follower.getPose());
+            turretController.showTelemetry(telemetry);
+//            robotState.updatePose(follower.getPose());
 //            niggantroller.showTurretTelemetry(telemetry);
             telemetry.addData("X",follower.getPose().getX());
             telemetry.addData("Y",follower.getPose().getY());
             telemetry.addData("heading",follower.getPose().getHeading());
-            niggantroller.showShooterTelemetry(telemetry);
+//            niggantroller.showShooterTelemetry(telemetry);
 
             telemetry.update();
 

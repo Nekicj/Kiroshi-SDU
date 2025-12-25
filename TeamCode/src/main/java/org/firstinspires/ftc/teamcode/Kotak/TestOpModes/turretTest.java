@@ -7,8 +7,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Controllers.BaseController;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorNew;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotor;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
@@ -16,16 +15,16 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Config
 @TeleOp(name = "Turret Test",group = "Competition")
 public class turretTest extends LinearOpMode {
-    private TurretControllerMotorNew turretController;
+    private TurretControllerMotor turretController;
     private asmGamepadEx driver1;
 
     private Follower follower;
     @Override
     public void runOpMode() {
-        turretController = new TurretControllerMotorNew();
+        turretController = new TurretControllerMotor();
         turretController.initialize(hardwareMap,"turret");
 
-        turretController.setTurretMode(TurretControllerMotorNew.TurretMode.FIELD_TARGET);
+        turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_TARGET);
 //        turretController.setFieldAngleTarget(30);
 
 

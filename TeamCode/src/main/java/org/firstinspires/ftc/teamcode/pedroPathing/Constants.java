@@ -25,18 +25,18 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
 
-            .xVelocity(68.9712380236528)
-            .yVelocity(62.03227990818775);
+            .xVelocity(84.82118813822588)
+            .yVelocity(68.42908147376353);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(10.1)
-            .forwardZeroPowerAcceleration(-35.64661499080001)
-            .lateralZeroPowerAcceleration(-75.37480738371073)
+            .forwardZeroPowerAcceleration(-27.932741061626466)
+            .lateralZeroPowerAcceleration(-69.67252519714293)
             .translationalPIDFCoefficients(new PIDFCoefficients(
-                    0.055,
+                    0.065,
                     0,
-                    0.01,
-                    0.025
+                    0.015,
+                    0.02
             ))
 //            .translationalPIDFCoefficients(new PIDFCoefficients(
 //                    0.08,dw3
@@ -44,7 +44,7 @@ public class Constants {
 //                    0.01,
 //                    0.04
 //            ))
-            .translationalPIDFSwitch(5)
+            .translationalPIDFSwitch(2)
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(
                     0.06,
                     0,
@@ -84,13 +84,13 @@ public class Constants {
 //            ))
             .useSecondaryHeadingPIDF(true)
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
-                    0.2,
+                    0.03,
                     0,
-                    0.001,
+                    0,
                     0.6,
-                    0.1
+                    0.025
             ))
-            .useSecondaryDrivePIDF(true)
+            .useSecondaryDrivePIDF(false)
             .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(
                     0.02,
                     0,
@@ -129,9 +129,9 @@ public class Constants {
             1,
             1,
             100,
-            0.7,
+            1.3,
             10,
-            0.8
+            1
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

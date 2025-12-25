@@ -34,6 +34,7 @@ public class FieldConstants {
 
         public static class Take2Gate {
             public static final Pose START = new Pose(65.019, -1.9428, -1.57);
+            public static final Pose CURVE = new Pose(0,0,0);
             public static final Pose FINAL = new Pose(65.019, -32.8, -1.57);
         }
 
@@ -48,16 +49,16 @@ public class FieldConstants {
         }
 
         public static final Pose GATE = new Pose(56.642, 23.719, 0);
-        public static final Pose SHOOT_POSE_5 = new Pose(115.802, -24.434, -3.16);
+        public static final Pose GOAL_POSE = new Pose(0,0,0);
     }
 
     public static class Blue {
         public static class Start {
-            public static final Pose CLOSE = new Pose(2.224, -23.19, -2.30);
-            public static final Pose FAR = new Pose(/* позиция для дальнего */);
+            public static final Pose CLOSE = new Pose(-5.96,-10.5,0);
+            public static final Pose FAR = new Pose(0,0,0);
         }
 
-        public static final Pose SCORE_POSE = new Pose(26.838, 5.141, 0);
+        public static final Pose SCORE_POSE = new Pose(42.94, 14.39, 0);
 
         public static class Take1 {
             public static final Pose START = new Pose(38.61, -3.483, -1.57);
@@ -65,13 +66,14 @@ public class FieldConstants {
         }
 
         public static class Take2 {
-            public static final Pose START = new Pose(65.019, -1.9428, -1.57);
-            public static final Pose FINAL = new Pose(65.019, -32.8, -1.57);
+            public static final Pose START = new Pose(68.71, -4.93, -1.57);
+            public static final Pose FINAL = new Pose(68.71, -26.8, -1.57);
         }
 
         public static class Take2Gate {
-            public static final Pose START = new Pose(65.019, -1.9428, -1.57);
-            public static final Pose FINAL = new Pose(65.019, -32.8, -1.57);
+            public static final Pose START = new Pose(68.71, -4.93, -1.57);
+            public static final Pose START_ZERO_HEADING = new Pose(68.71, -4.93, 0);
+            public static final Pose FINAL = new Pose(65.00, -20.59, -1.57);
         }
 
         public static class Take3 {
@@ -84,7 +86,8 @@ public class FieldConstants {
             public static final Pose FINAL = new Pose(114, -35.4, -0.2);
         }
 
-        public static final Pose GATE = new Pose(56, -27.377, 0);
-        public static final Pose SHOOT_POSE_5 = new Pose(111.17, 15.15, -3.15);
+        public static final Pose GATE = new Pose(63.6, -32.4, -2.0995);
+        public static final Pose GATE_GLOK = new Pose(62, -33.888, -3.14);
+        public static final Pose GOAL_POSE = new Pose(-7,-35.179,0);
     }
 }

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 
 @Config
-public class TurretController {
+public class TurretControllerCRServo {
     private AnalogInput encoder;
     private CRServo turretServo;
     private CRServo turretServoLeft;

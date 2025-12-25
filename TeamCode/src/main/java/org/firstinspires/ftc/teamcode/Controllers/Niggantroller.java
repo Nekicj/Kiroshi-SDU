@@ -4,7 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretController;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerCRServo;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 
 @Config
@@ -13,7 +13,7 @@ public class Niggantroller {
     private IntakeController intakeController;
     private ShooterControllerPIDVSA shooterController;
     private CommandScheduler outtakeScheduler;
-    private TurretController turretController;
+    private TurretControllerCRServo turretController;
     private OchkoController ochkoController;
 
     public Niggantroller(HardwareMap hardwareMap,Telemetry newTelemetry){

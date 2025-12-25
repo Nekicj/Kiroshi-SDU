@@ -8,10 +8,10 @@ public class OchkoController {
     private Servo ramp = null;
 
     private double stopperOff = 1;
-    private double stopperOn = 0.68;
+    private double stopperOn = 0.72;
 
     private double rampOff = 0.7;
-    private double rampOn = 0.35;
+    private double rampOn = 0.38;
 
 
     private boolean stopperStateOn = true;

@@ -10,11 +10,16 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 
 @Config
-public class TurretControllerMotorNew {
+public class TurretControllerMotorLL {
     private DcMotorEx turretMotor;
     private asmPIDController turretPID;
 
     private Pose thisRobotPose = new Pose(0, 0, 0);
+
+
+    private boolean aprilTagDetected = false;
+    private double aprilTagAngle = 0;
+    private boolean useAprilTagPriority = true;
 
     public static double kP = 0.005;
     public static double kI = 0;
@@ -48,6 +53,15 @@ public class TurretControllerMotorNew {
     private Gamepad gamepad;
     private boolean calibrationMode = false;
     private double calibrationPower = 0;
+
+    public void updateAprilTagData(boolean detected, double angle) {
+        this.aprilTagDetected = detected;
+        this.aprilTagAngle = angle;
+    }
+
+    public void setAprilTagPriority(boolean enabled) {
+        this.useAprilTagPriority = enabled;
+    }
 
     public void initialize(HardwareMap hardwareMap, String motorName) {
         turretPID = new asmPIDController(kP, kI, kD);
@@ -85,16 +99,22 @@ public class TurretControllerMotorNew {
         } else if (currentMode == TurretMode.MANUAL) {
             turretMotor.setPower(manualPower);
         } else {
-            switch (currentMode) {
-                case FIELD_TARGET:
-                    updateFieldTargetMode(robotPose);
-                    break;
-                case FIELD_ANGLE:
-                    updateFieldAngleMode();
-                    break;
-                case ROBOT_RELATIVE:
-                    updateRobotRelativeMode();
-                    break;
+            if (useAprilTagPriority && aprilTagDetected) {
+                setTargetAngle(aprilTagAngle);
+                updatePID();
+            } else {
+
+                switch (currentMode) {
+                    case FIELD_TARGET:
+                        updateFieldTargetMode(robotPose);
+                        break;
+                    case FIELD_ANGLE:
+                        updateFieldAngleMode();
+                        break;
+                    case ROBOT_RELATIVE:
+                        updateRobotRelativeMode();
+                        break;
+                }
             }
         }
     }
@@ -138,7 +158,6 @@ public class TurretControllerMotorNew {
         turretMotor.setPower(power);
     }
 
-
     private double calculateFieldAngleToTarget(double robotX, double robotY, double robotHeading) {
         double dx = TARGET_X - robotX;
         double dy = TARGET_Y - robotY;
@@ -175,7 +194,6 @@ public class TurretControllerMotorNew {
         return MIN_TURRET_ANGLE + (positionFromMin / positionRange) * angleRange;
     }
 
-
     public void setTurretMode(TurretMode mode) {
         this.currentMode = mode;
         turretPID.reset();
@@ -203,7 +221,6 @@ public class TurretControllerMotorNew {
         this.TARGET_Y = y;
     }
 
-
     public double getCurrentAngle() {
         return positionToAngle(turretMotor.getCurrentPosition());
     }
@@ -220,8 +237,6 @@ public class TurretControllerMotorNew {
         return Math.abs(getCurrentAngle() - targetTurretAngle) < tolerance;
     }
 
-
-
     public void showTelemetry(Telemetry telemetry) {
         telemetry.addLine("=== TURRET (MOTOR) ===");
         telemetry.addData("Mode", currentMode);
@@ -231,6 +246,14 @@ public class TurretControllerMotorNew {
         telemetry.addData("Position", turretMotor.getCurrentPosition());
         telemetry.addData("Power", "%.2f", turretMotor.getPower());
         telemetry.addData("On Target", isOnTarget());
+
+        // === ДОБАВЛЕНО: Информация о AprilTag ===
+        telemetry.addLine("=== APRILTAG ===");
+        telemetry.addData("Detected", aprilTagDetected);
+        telemetry.addData("Priority", useAprilTagPriority ? "ON" : "OFF");
+        if (aprilTagDetected) {
+            telemetry.addData("AprilTag Angle", "%.1f°", aprilTagAngle);
+        }
 
         if (currentMode == TurretMode.FIELD_TARGET) {
             telemetry.addData("Target Point", "(%.1f, %.1f)", TARGET_X, TARGET_Y);

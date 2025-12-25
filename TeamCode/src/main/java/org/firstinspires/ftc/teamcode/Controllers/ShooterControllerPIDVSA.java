@@ -44,9 +44,9 @@
 
         private static final double NOMINAL_VOLTAGE = 12.5;
 
-        public static double servoClose = 0.63;
+        public static double servoClose = 0.3;
         public static double servoMedium = 0.45;
-        public static double servoHigh = 0.3;
+        public static double servoHigh = 0.63;
 
         public static enum ServosPos{
             DIRECTION_DOWN(0.6),
