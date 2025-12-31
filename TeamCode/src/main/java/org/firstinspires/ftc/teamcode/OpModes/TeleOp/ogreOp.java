@@ -5,13 +5,13 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controllers.Niggantroller;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotor;
-import org.firstinspires.ftc.teamcode.OpModes.Autonomous.FieldConstants;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorLL;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 import org.firstinspires.ftc.teamcode.Utils.asmRobotState;
@@ -72,18 +72,18 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Config
 @TeleOp(name = "Solo TelePopus",group = "Competition")
-public class ogreOp extends LinearOpMode {
+public class ogreOp extends OpMode {
     private Niggantroller niggantroller;
     private BaseController baseController;
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
-    private TurretControllerMotor turretController;
+    private TurretControllerMotorLL turretController;
 
     private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
     private double offset = asmConfig.motorOffsetClose;
     private boolean isCloseScore = true;
     private boolean isShooting = false;
-    private boolean isTurretFieldCentric = false;
+    private boolean isTurretFieldAngle = false;
     private boolean isRobotCentric = false;
     private boolean isBlue = false;
     private boolean isRamp = false;
@@ -92,9 +92,11 @@ public class ogreOp extends LinearOpMode {
 //    public static double yawScalar = 1.000477;
 
     private Follower follower;
+
     @Override
-    public void runOpMode() {
+    public void init(){
         isBlue = asmConfig.isBlue;
+
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         follower.startTeleopDrive(true);
@@ -109,156 +111,190 @@ public class ogreOp extends LinearOpMode {
         baseController.initialize(hardwareMap, true);
         baseController.resetHeading(1);
 
-        turretController = new TurretControllerMotor();
-        turretController.initialize(hardwareMap,"turret");
+        turretController = new TurretControllerMotorLL();
+        turretController.initialize(hardwareMap,"turret","limelight");
 
-        turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_TARGET);
-        turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
+        turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
+
+        turretController.enableLimelightCorrection(false);
+//        turretController.setGamepad(gamepad1);
+
+
+        if(isBlue){
+            turretController.setPipeline(0); //
+            turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentricBlue);
+        }else{
+            turretController.setPipeline(1);
+            turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
+        }
+
 
 
 
         telemetry.addData("Status, ","Initialized");
         telemetry.addData("Pose: ",follower.getPose().toString());
+    }
 
-        waitForStart();
+    @Override
+    public void init_loop(){
+        baseController.resetHeading(1);
+    }
 
-        while (opModeIsActive()){
-            driver1.update();
+    @Override
+    public void loop(){
+        driver1.update();
 
-            double forward = -gamepad1.left_stick_y;
-            double strafe = -gamepad1.left_stick_x;
-            double rotate = -gamepad1.right_stick_x;
+        double forward = -gamepad1.left_stick_y;
+        double strafe = -gamepad1.left_stick_x;
+        double rotate = -gamepad1.right_stick_x;
 
-            if(forward <= 0.05 && forward >= -0.05){
-                forward = 0;
-            }
-            if(strafe <= 0.05 && strafe >= -0.05){
-                strafe = 0;
-            }
-            if(rotate <= 0.05 && rotate>= -0.05){
-                rotate = 0;
-            }
+        if(forward <= 0.05 && forward >= -0.05){
+            forward = 0;
+        }
+        if(strafe <= 0.05 && strafe >= -0.05){
+            strafe = 0;
+        }
+        if(rotate <= 0.05 && rotate>= -0.05){
+            rotate = 0;
+        }
 
-            follower.update();
+        follower.update();
 
-            if(!driver1.isLeftTriggerDown()){
-                follower.setTeleOpDrive(
-                        forward ,
-                        strafe ,
-                        rotate *0.6,
-                        isRobotCentric
-                );
-            }else{
-                follower.setTeleOpDrive(
-                        0 ,
-                        0 ,
-                        0,
-                        isRobotCentric
-                );
-            }
-
-
-            if(driver1.isXPressed()){
-                isShooting = !isShooting;
-            }
-
-            if(driver1.isAPressed()){
-                isTurretFieldCentric = !isTurretFieldCentric;
-            }
-
-            if(isTurretFieldCentric){
-                turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_ANGLE);
-            }else{
-                turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_TARGET);
-
-            }
+        if(!driver1.isLeftTriggerDown()){
+            follower.setTeleOpDrive(
+                    forward ,
+                    strafe ,
+                    rotate *0.6,
+                    isRobotCentric
+            );
+        }else{
+            follower.setTeleOpDrive(
+                    0 ,
+                    0 ,
+                    0,
+                    isRobotCentric
+            );
+        }
 
 
+        if(driver1.isXPressed()){
+            isShooting = !isShooting;
+        }
 
-            if(driver1.isYPressed()){
-                isRobotCentric = !isRobotCentric;
-            }
+        if(driver1.isAPressed()){
+            isTurretFieldAngle = !isTurretFieldAngle;
+        }
+
+        if(isTurretFieldAngle){
+            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
+        }else{
+            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.ROBOT_RELATIVE);
+            turretController.setRobotRelativeAngle(0);
+
+        }
 
 
-            if(isShooting){
-                niggantroller.toShootShooter(true);
+
+        if(driver1.isYPressed()){
+            isRobotCentric = !isRobotCentric;
+        }
+
+
+        if(isShooting){
+            niggantroller.toShootShooter(true);
 //                niggantroller.setTurretAutoAimEnabled(true);
-            }else{
-                niggantroller.toShootShooter(false);
+        }else{
+            niggantroller.toShootShooter(false);
 //                niggantroller.setTurretAutoAimEnabled(false);
-            }
+        }
 
 
-            if(driver1.isRightBumperPressed()){
-                niggantroller.intakeEpt(-1);
-                niggantroller.shootBall(false);
-            }
-            if(driver1.isLeftBumperPressed()){
-                niggantroller.intakeEpt(1);
-            }
-            if(driver1.isRightTriggerPressed(0.15)){
-                niggantroller.shootBall(true);
+        if(driver1.isRightBumperPressed()){
+            niggantroller.intakeEpt(-1);
+            niggantroller.shootBall(false);
+        }
+        if(driver1.isLeftBumperPressed()){
+            niggantroller.intakeEpt(1);
+        }
+        if(driver1.isRightTriggerPressed(0.15)){
+            niggantroller.shootBall(true);
 
-            }
+        }
 
-            if(driver1.isBPressed()){
-                isRamp = !isRamp;
-                niggantroller.setRamp(isRamp);
-            }
-
-
+        if(driver1.isBPressed()){
+            isRamp = !isRamp;
+            niggantroller.setRamp(isRamp);
+        }
 
 
 
-            if(isCloseScore){
-                niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
+
+
+        if(isCloseScore){
+            niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
+            if(!isBlue){
                 turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
 
-
-                targetVelocityToCheck = asmConfig.motorVelocityClose;
-                offset = asmConfig.motorOffsetClose;
-                niggantroller.setShooterVelocity(targetVelocityToCheck);
             }else{
+                turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentricBlue);
+            }
+
+
+
+            targetVelocityToCheck = asmConfig.motorVelocityClose;
+            offset = asmConfig.motorOffsetClose;
+            niggantroller.setShooterVelocity(targetVelocityToCheck);
+        }else{
+            if(!isBlue){
                 turretController.setFieldAngleTarget(asmConfig.targetTurretLongFieldCentric);
-
-                targetVelocityToCheck = asmConfig.motorVelocityLong;
-                offset = asmConfig.motorOffsetLong;
-                niggantroller.setShooterVelocity(targetVelocityToCheck);
-                niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoHigh);
+            }else{
+                turretController.setFieldAngleTarget(asmConfig.targetTurretLongFieldCentricBlue);
             }
 
-            if(driver1.isRightStickButtonPressed()){
-                isCloseScore = true;
-            }else if(driver1.isLeftStickButtonPressed()){
-                isCloseScore = false;
-            }
 
-            if(driver1.isBackPressed()){
-                baseController.resetHeading(1);
+            targetVelocityToCheck = asmConfig.motorVelocityLong;
+            offset = asmConfig.motorOffsetLong;
+            niggantroller.setShooterVelocity(targetVelocityToCheck);
+            niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoHigh);
+        }
+
+        if(driver1.isRightStickButtonPressed()){
+            isCloseScore = true;
+        }else if(driver1.isLeftStickButtonPressed()){
+            isCloseScore = false;
+        }
+
+        if(driver1.isBackPressed()){
+            baseController.resetHeading(1);
 //                Pose followerPose = follower.getPose();
 //                baseController.resetHeading(yawScalar);
 //                follower.setPose(new Pose(followerPose.getX(),followerPose.getY(),0));
-            }
+        }
 
-            if(niggantroller.checkShooterVelocity(targetVelocityToCheck,offset)){
-                gamepad1.rumble(0.1,0.1,50);
-            }
-
-
-
-            niggantroller.update(gamepad2.back);
-            turretController.update(follower.getPose());
-            turretController.showTelemetry(telemetry);
-//            robotState.updatePose(follower.getPose());
-//            niggantroller.showTurretTelemetry(telemetry);
-            telemetry.addData("X",follower.getPose().getX());
-            telemetry.addData("Y",follower.getPose().getY());
-            telemetry.addData("heading",follower.getPose().getHeading());
-//            niggantroller.showShooterTelemetry(telemetry);
-
-            telemetry.update();
+        if(niggantroller.checkShooterVelocity(targetVelocityToCheck,offset) && niggantroller.getIntakePower() == -1){
+            gamepad1.rumble(0.2,0.2,50);
+        }else if(niggantroller.getIntakePower() == -1){
+            gamepad1.rumble(0.2,0,50);
+        }else if(niggantroller.checkShooterVelocity(targetVelocityToCheck,offset)){
+            gamepad1.rumble(0,0.2,50);
 
         }
+
+
+
+
+
+        niggantroller.update(gamepad2.back);
+        turretController.update(follower.getPose());
+        turretController.showTelemetry(telemetry);
+//            robotState.updatePose(follower.getPose());
+//            niggantroller.showTurretTelemetry(telemetry);
+        telemetry.addData("X",follower.getPose().getX());
+        telemetry.addData("Y",follower.getPose().getY());
+        telemetry.addData("heading",follower.getPose().getHeading());
+        niggantroller.showShooterTelemetry(telemetry);
+
+        telemetry.update();
     }
 
 }

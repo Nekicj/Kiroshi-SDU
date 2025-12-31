@@ -26,13 +26,13 @@
 //        public static double kI = 0.0;
 //        public static double kD = 0;
 
-        public static double kS = 0.9;    // Volts - static friction
-        public static double kV = 0.0052;  // Volts per RPM - velocity constant
+        public static double kS = 0.825;    // Volts - static friction
+        public static double kV = 0.00425;  // Volts per RPM - velocity constant
         public static double kA = 0.0003;  // Volts per RPM/s - acceleration constant
 
-        public static double kP = 0.035;
+        public static double kP = 0.025;
         public static double kI = 0.00005;
-        public static double kD = 0.0015;
+        public static double kD = 0.001;
 
 
 
@@ -156,6 +156,8 @@
             double voltageCompensation = NOMINAL_VOLTAGE / currentVoltage;
 
             telemetry.addLine("=== WPILib Shooter Controller ===");
+            telemetry.addData("Left Encoder: ",shooterMotorLeft.getVelocity());
+            telemetry.addData("Right Encoder: ",shooterMotorRight.getVelocity());
             telemetry.addData("Target RPM", "%.1f", targetVelocityRPM);
             telemetry.addData("Current RPM", "%.1f", currentVelocity);
             telemetry.addData("Error RPM", "%.1f", targetVelocityRPM - currentVelocity);

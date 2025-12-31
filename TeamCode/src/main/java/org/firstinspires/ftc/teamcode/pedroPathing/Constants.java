@@ -86,7 +86,7 @@ public class Constants {
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(
                     0.03,
                     0,
-                    0,
+                    0.005,
                     0.6,
                     0.025
             ))
@@ -111,8 +111,8 @@ public class Constants {
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(3.248)
-            .strafePodX(-3.544)
+            .forwardPodY(3.386)
+            .strafePodX(-3.405)
             .hardwareMapName("pinpoint")
 //            .yawScalar(1.000477)
 
@@ -129,7 +129,7 @@ public class Constants {
             1,
             1,
             100,
-            1.3,
+            1,
             10,
             1
     );

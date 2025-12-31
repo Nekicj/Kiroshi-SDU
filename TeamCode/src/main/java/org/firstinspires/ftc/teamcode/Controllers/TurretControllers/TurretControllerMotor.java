@@ -19,7 +19,7 @@ public class TurretControllerMotor {
     public static double kP = 0.005;
     public static double kI = 0;
     public static double kD = 0;
-    public static double tolerance = 0.5;
+    public static double tolerance = 1.5;
 
     public static double MIN_TURRET_ANGLE = -180;
     public static double MAX_TURRET_ANGLE = 180;

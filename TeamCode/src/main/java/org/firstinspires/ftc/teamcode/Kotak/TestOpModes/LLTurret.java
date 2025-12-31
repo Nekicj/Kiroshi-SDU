@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
 
 
 @Config
-@TeleOp(name = "Turret Calibration",group = "Competition")
+@TeleOp(name = "Turret LimelIght",group = "Competition")
 public class LLTurret extends LinearOpMode {
     private DcMotorEx turretMotor = null;
     private asmGamepadEx driver1;
@@ -23,7 +23,7 @@ public class LLTurret extends LinearOpMode {
 
     private asmPIDController turretPIDController = null;
 
-    public static double kP = 0.001;
+    public static double kP = 0.004;
     public static double kD = 0;
 
     public static double tolerance = 1;
@@ -47,6 +47,7 @@ public class LLTurret extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()){
+            turretPIDController = new asmPIDController(kP,0,kD);
 
 
             if(gamepad1.right_bumper){
@@ -68,6 +69,7 @@ public class LLTurret extends LinearOpMode {
             }
 
             telemetry.addData("turret Pose",turretMotor.getCurrentPosition());
+            telemetry.addData("motor power: ",turretMotor.getPower());
             telemetry.update();
 
         }

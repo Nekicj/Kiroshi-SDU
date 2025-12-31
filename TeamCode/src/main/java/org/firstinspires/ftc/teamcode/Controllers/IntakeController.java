@@ -22,4 +22,8 @@ public class IntakeController {
     public void setIntakePower(double intakePower){
         intakeMotor.setPower(intakePower);
     }
+
+    public double getIntakePower(){
+        return intakeMotor.getPower();
+    }
 }

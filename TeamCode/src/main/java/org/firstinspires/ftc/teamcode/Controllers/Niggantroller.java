@@ -69,6 +69,10 @@ public class Niggantroller {
         intakeController.setIntakePower(this.intakeState);
     }
 
+    public double getIntakePower(){
+        return intakeController.getIntakePower();
+    }
+
     public void setDirectionPos(double pos){
         shooterController.setDirectionPos(pos);
     }
