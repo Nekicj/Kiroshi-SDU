@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Kotak.TestOpModes;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
 
 
 @Config
+@Disabled
 @TeleOp(name = "Turret Calibration",group = "Competition")
 public class turretCalibration extends LinearOpMode {
     private DcMotorEx turretMotor = null;

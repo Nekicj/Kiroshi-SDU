@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerCRServo;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 
 @Config
@@ -13,22 +12,17 @@ public class Niggantroller {
     private IntakeController intakeController;
     private ShooterControllerPIDVSA shooterController;
     private CommandScheduler outtakeScheduler;
-    private TurretControllerCRServo turretController;
     private OchkoController ochkoController;
 
     public Niggantroller(HardwareMap hardwareMap,Telemetry newTelemetry){
         intakeController = new IntakeController();
         shooterController = new ShooterControllerPIDVSA();
         outtakeScheduler = new CommandScheduler();
-//        turretController = new TurretController();
         ochkoController = new OchkoController();
 
         intakeController.initialize(hardwareMap,"intake");
         shooterController.initialize(hardwareMap,"shooter_l","shooter_r","r_angle",ShooterControllerPIDVSA.servoClose);
         ochkoController.initialize(hardwareMap,"stopper","ramp",true);
-//        turretController.initialize(hardwareMap,"encoder","turret_r");
-
-//        shooterController.setAutoTuningEnabled(true);
     }
 
     private boolean isShooting = false;
@@ -40,16 +34,8 @@ public class Niggantroller {
 
 
     public void update(boolean isBack){
-
-
-//        turretController.update();
         outtakeScheduler.update();
         shooterController.update();
-
-//        if (isShooting) {
-//            shooterController.setShooterVelocity(shooterSpeed);
-//        }
-
     }
 
 

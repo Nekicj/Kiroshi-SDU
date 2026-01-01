@@ -1,4 +1,414 @@
 package org.firstinspires.ftc.teamcode.Controllers.TurretControllers;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utils.asmPIDController;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+@Config
 public class TurretControllerLLHeadTrack {
+    private DcMotorEx turretMotor;
+    private asmPIDController turretPID;
+    private Limelight3A limelight;
+
+    private Pose thisRobotPose = new Pose(0, 0, 0);
+    private double previousRobotHeading = 0;
+    private double previousTime = 0;
+    private double robotAngularVelocity = 0; // radian / second
+
+
+    public static double kP = 0.006;
+    public static double kI = 0;
+    public static double kD = 0;
+    public static double kF = 0.03;   // static friction correction
+
+    public static double tolerance = 0.5;
+    public static double velocityFeedForward = 0.02;
+
+    public static double lookAheadTime  =0.05;
+
+    public static double MIN_TURRET_ANGLE = -180;
+    public static double MAX_TURRET_ANGLE = 180;
+    public static double ZERO_POSITION = 0;
+    public static double MIN_POSITION = -596;
+    public static double MAX_POSITION = 596;
+
+    public static double TARGET_X = 21.71;
+    public static double TARGET_Y = 45.22;
+
+    public static double LIMELIGHT_CORRECTION_GAIN = 0.15;
+    public static double LIMELIGHT_ANGLE_TOLERANCE = 0.5;
+    public static double LIMELIGHT_FILTER_STRENGTH = 0.3;
+
+    public enum TurretMode {
+        FIELD_TARGET,
+        FIELD_ANGLE,
+        ROBOT_RELATIVE,
+        MANUAL,
+        LIMELIGHT_TRACKING  // clearly limelight correction
+    }
+
+    private TurretMode currentMode = TurretMode.FIELD_TARGET;
+    private boolean autoAimEnabled = true;
+    private double targetTurretAngle = 0;
+    private double manualPower = 0;
+    private double fieldAngleTarget = 0;
+    private double filteredLimelightTx = 0;
+
+    private boolean limelightCorrectionEnabled = false;
+    private boolean limelightValid = false;
+    private double limelightTx = 0;
+    private double limelightCorrectionAngle = 0;
+
+    private Gamepad gamepad;
+    private boolean calibrationMode = false;
+    private double calibrationPower = 0;
+
+    public void initialize(HardwareMap hardwareMap, String motorName) {
+        initialize(hardwareMap, motorName, null);
+    }
+
+    public void initialize(HardwareMap hardwareMap, String motorName, String limelightName) {
+        turretPID = new asmPIDController(kP, kI, kD);
+        turretPID.setTolerance(1);
+
+        turretMotor = hardwareMap.get(DcMotorEx.class, motorName);
+        turretMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        turretMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        turretMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        if (limelightName != null && !limelightName.isEmpty()) {
+            try {
+                limelight = hardwareMap.get(Limelight3A.class, limelightName);
+                limelight.start();
+            } catch (Exception e) {
+                limelight = null;
+            }
+        }
+
+        previousTime = System.currentTimeMillis() / 1000.0;
+    }
+
+    public void update(Pose robotPose) {
+        this.thisRobotPose = robotPose;
+
+        double currentTime = System.currentTimeMillis() / 1000.0;
+        double deltaTime = currentTime - previousTime;
+        if (deltaTime > 0) {
+            double deltaHeading = robotPose.getHeading() - previousRobotHeading;
+            while (deltaHeading > Math.PI) deltaHeading -= 2 * Math.PI;
+            while (deltaHeading < -Math.PI) deltaHeading += 2 * Math.PI;
+            robotAngularVelocity = deltaHeading / deltaTime;
+        }
+        previousRobotHeading = robotPose.getHeading();
+        previousTime = currentTime;
+
+        updateLimelightData();
+
+        if (gamepad != null && Math.abs(gamepad.right_stick_x) > 0.1 && gamepad.left_trigger > 0.3) {
+            manualPower = -gamepad.right_stick_x * 0.5;
+            currentMode = TurretMode.MANUAL;
+            turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        } else if (currentMode == TurretMode.MANUAL) {
+            manualPower = 0;
+        }
+
+        if (gamepad != null && gamepad.left_trigger > 0.5) {
+            calibrationMode = true;
+            if(gamepad.dpad_left){
+                calibrationPower = -0.6;
+                turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }else if(gamepad.dpad_right){
+                calibrationPower = 0.6;
+                turretMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                turretMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }else{
+                calibrationPower = 0.8;
+            }
+        } else {
+            calibrationMode = false;
+        }
+
+        if (calibrationMode) {
+            turretMotor.setPower(calibrationPower);
+        } else if (currentMode == TurretMode.MANUAL) {
+            turretMotor.setPower(manualPower);
+        } else {
+            switch (currentMode) {
+                case FIELD_TARGET:
+                    updateFieldTargetMode(robotPose);
+                    break;
+                case FIELD_ANGLE:
+                    updateFieldAngleMode();
+                    break;
+                case ROBOT_RELATIVE:
+                    updateRobotRelativeMode();
+                    break;
+                case LIMELIGHT_TRACKING:
+                    updateLimelightTrackingMode();
+                    break;
+            }
+        }
+    }
+
+    private void updateLimelightData() {
+        limelightValid = false;
+        limelightTx = 0;
+        limelightCorrectionAngle = 0;
+
+        if (limelight != null && limelightCorrectionEnabled) {
+            LLResult result = limelight.getLatestResult();
+            if (result != null && result.isValid()) {
+                limelightValid = true;
+                limelightTx = result.getTx();
+
+                filteredLimelightTx = limelightTx;
+
+                limelightCorrectionAngle = -filteredLimelightTx * LIMELIGHT_CORRECTION_GAIN;
+            }
+        }
+    }
+
+    private void updateFieldAngleMode() {
+        if (limelightCorrectionEnabled && limelightValid) {
+            if (Math.abs(filteredLimelightTx) > LIMELIGHT_ANGLE_TOLERANCE) {
+                double correction = -filteredLimelightTx * LIMELIGHT_CORRECTION_GAIN;
+
+                double velocityFF = -Math.toDegrees(robotAngularVelocity) * velocityFeedForward;
+
+                setTargetAngle(correction + velocityFF);
+            }
+
+            if (Math.abs(filteredLimelightTx) < LIMELIGHT_ANGLE_TOLERANCE) {
+                turretPID.reset();
+            }
+        } else {
+            double robotHeading = Math.toDegrees(thisRobotPose.getHeading());
+
+            double predictedRobotHeading = robotHeading + Math.toDegrees(robotAngularVelocity * lookAheadTime);
+
+            double relativeTurretAngle = fieldAngleTarget - predictedRobotHeading;
+            relativeTurretAngle = normalizeAngle(relativeTurretAngle);
+
+            double velocityCompensation = -Math.toDegrees(robotAngularVelocity) * velocityFeedForward;
+
+            setTargetAngle(relativeTurretAngle + velocityCompensation);
+        }
+
+        updatePID();
+    }
+
+    private void updateFieldTargetMode(Pose robotPose) {
+        if (autoAimEnabled) {
+            double fieldAngle = calculateFieldAngleToTarget(robotPose.getX(), robotPose.getY(), robotPose.getHeading());
+
+            double velocityCompensation = -Math.toDegrees(robotAngularVelocity) * velocityFeedForward;
+
+            setTargetAngle(fieldAngle + velocityCompensation);
+        }
+        updatePID();
+    }
+
+    private void updateLimelightTrackingMode() {
+        if (limelightValid) {
+            double targetOffset = -filteredLimelightTx * 2.0;
+
+            targetOffset = Math.max(-30, Math.min(30, targetOffset));
+
+            double currentAngle = getCurrentAngle();
+            setTargetAngle(currentAngle + targetOffset);
+
+
+        } else {
+            turretMotor.setPower(0);
+            return;
+        }
+//        updatePID();
+    }
+
+    private void updateRobotRelativeMode() {
+        updatePID();
+    }
+
+    private void updatePID() {
+        double targetPosition = angleToPosition(targetTurretAngle);
+        double currentPosition = turretMotor.getCurrentPosition();
+
+        targetPosition = Math.max(MIN_POSITION, Math.min(MAX_POSITION, targetPosition));
+
+        turretPID.setTarget(targetPosition);
+        double pidPower = turretPID.calculate(currentPosition);
+
+        double error = targetPosition - currentPosition;
+        double feedForward = Math.signum(error) * kF;
+
+        double power = pidPower + feedForward;
+
+        power = Math.max(-1.0, Math.min(1.0, power));
+
+        if (Math.abs(power) < 0.05 && Math.abs(error) < 5) {
+            power = 0;
+        }
+
+        turretMotor.setPower(power);
+    }
+
+    public void update() {
+        update(thisRobotPose);
+    }
+
+    private double calculateFieldAngleToTarget(double robotX, double robotY, double robotHeading) {
+        double dx = TARGET_X - robotX;
+        double dy = TARGET_Y - robotY;
+
+        double absoluteAngleToTarget = Math.atan2(dy, dx);
+        double relativeAngle = Math.toDegrees(absoluteAngleToTarget) - Math.toDegrees(robotHeading);
+
+        return normalizeAngle(relativeAngle);
+    }
+
+    private double normalizeAngle(double angle) {
+        angle %= 360;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+        return angle;
+    }
+
+    private double angleToPosition(double angle) {
+        double normalizedAngle = Math.max(MIN_TURRET_ANGLE, Math.min(MAX_TURRET_ANGLE, angle));
+        double angleFromMin = normalizedAngle - MIN_TURRET_ANGLE;
+        double angleRange = MAX_TURRET_ANGLE - MIN_TURRET_ANGLE;
+        double positionRange = MAX_POSITION - MIN_POSITION;
+
+        return MIN_POSITION + (angleFromMin / angleRange) * positionRange;
+    }
+
+    private double positionToAngle(double position) {
+        double clampedPosition = Math.max(MIN_POSITION, Math.min(MAX_POSITION, position));
+        double positionFromMin = clampedPosition - MIN_POSITION;
+        double positionRange = MAX_POSITION - MIN_POSITION;
+        double angleRange = MAX_TURRET_ANGLE - MIN_TURRET_ANGLE;
+
+        return MIN_TURRET_ANGLE + (positionFromMin / positionRange) * angleRange;
+    }
+
+
+    public void setTurretMode(TurretMode mode) {
+        this.currentMode = mode;
+        turretPID.reset();
+    }
+
+    public void enableLimelightTrackingMode(boolean enable) {
+        if (enable) {
+            setTurretMode(TurretMode.LIMELIGHT_TRACKING);
+            enableLimelightCorrection(true);
+        }
+    }
+
+    public void setVelocityFeedForward(double gain) {
+        this.velocityFeedForward = gain;
+    }
+
+    public double getRobotAngularVelocity() {
+        return robotAngularVelocity;
+    }
+
+    public void setGamepad(Gamepad gamepad) {
+        this.gamepad = gamepad;
+    }
+
+    public void setPipeline(int pipelineId){
+        limelight.pipelineSwitch(pipelineId);
+    }
+
+    public void setTargetAngle(double angle) {
+        this.targetTurretAngle = Math.max(MIN_TURRET_ANGLE, Math.min(MAX_TURRET_ANGLE, angle));
+    }
+
+    public void setFieldAngleTarget(double fieldAngle) {
+        this.fieldAngleTarget = fieldAngle;
+    }
+
+    public void setRobotRelativeAngle(double angle) {
+        this.targetTurretAngle = angle;
+        this.currentMode = TurretMode.ROBOT_RELATIVE;
+    }
+
+    public void setAutoAimEnabled(boolean enabled) {
+        this.autoAimEnabled = enabled;
+    }
+
+    public void setTargetPoint(double x, double y) {
+        this.TARGET_X = x;
+        this.TARGET_Y = y;
+    }
+
+    public void enableLimelightCorrection(boolean enabled) {
+        this.limelightCorrectionEnabled = enabled;
+    }
+
+    public void toggleLimelightCorrection() {
+        this.limelightCorrectionEnabled = !this.limelightCorrectionEnabled;
+    }
+
+    public boolean isLimelightCorrectionEnabled() {
+        return limelightCorrectionEnabled;
+    }
+
+    public boolean isLimelightValid() {
+        return limelightValid;
+    }
+
+    public double getLimelightTx() {
+        return limelightTx;
+    }
+
+    public double getCurrentAngle() {
+        return positionToAngle(turretMotor.getCurrentPosition());
+    }
+
+    public double getTargetAngle() {
+        return targetTurretAngle;
+    }
+
+    public TurretMode getTurretMode() {
+        return currentMode;
+    }
+
+    public boolean isOnTarget() {
+        return Math.abs(getCurrentAngle() - targetTurretAngle) < tolerance;
+    }
+
+    public void showTelemetry(Telemetry telemetry) {
+        telemetry.addLine("=== TURRET ===");
+        telemetry.addData("Mode", currentMode);
+        telemetry.addData("Current Angle", "%.1f°", getCurrentAngle());
+        telemetry.addData("Target Angle", "%.1f°", targetTurretAngle);
+        telemetry.addData("Error", "%.1f°", targetTurretAngle - getCurrentAngle());
+        telemetry.addData("Position", turretMotor.getCurrentPosition());
+        telemetry.addData("Power", "%.2f", turretMotor.getPower());
+        telemetry.addData("On Target", isOnTarget());
+        telemetry.addData("Robot Ang Vel", "%.2f rad/s", robotAngularVelocity);
+
+        telemetry.addLine("=== LIMELIGHT ===");
+        telemetry.addData("Correction Enabled", limelightCorrectionEnabled ? "ON" : "OFF");
+        telemetry.addData("Limelight Valid", limelightValid ? "YES" : "NO");
+        if (limelightValid) {
+            telemetry.addData("Tx", "%.2f°", limelightTx);
+            telemetry.addData("Filtered Tx", "%.2f°", filteredLimelightTx);
+            telemetry.addData("Correction Angle", "%.2f°", limelightCorrectionAngle);
+        }
+    }
 }

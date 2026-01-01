@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controllers.Niggantroller;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerLLHeadTrack;
 import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorLL;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
@@ -77,7 +78,7 @@ public class ogreOp extends OpMode {
     private BaseController baseController;
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
-    private TurretControllerMotorLL turretController;
+    private TurretControllerLLHeadTrack turretController;
 
     private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
     private double offset = asmConfig.motorOffsetClose;
@@ -111,20 +112,20 @@ public class ogreOp extends OpMode {
         baseController.initialize(hardwareMap, true);
         baseController.resetHeading(1);
 
-        turretController = new TurretControllerMotorLL();
+        turretController = new TurretControllerLLHeadTrack();
         turretController.initialize(hardwareMap,"turret","limelight");
 
-        turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
+        turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.FIELD_ANGLE);
 
         turretController.enableLimelightCorrection(false);
 //        turretController.setGamepad(gamepad1);
 
 
         if(isBlue){
-            turretController.setPipeline(0); //
+            turretController.setPipeline(1); //
             turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentricBlue);
         }else{
-            turretController.setPipeline(1);
+            turretController.setPipeline(0);
             turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
         }
 
@@ -186,9 +187,9 @@ public class ogreOp extends OpMode {
         }
 
         if(isTurretFieldAngle){
-            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
+            turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.FIELD_ANGLE);
         }else{
-            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.ROBOT_RELATIVE);
+            turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.ROBOT_RELATIVE);
             turretController.setRobotRelativeAngle(0);
 
         }
