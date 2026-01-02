@@ -52,19 +52,14 @@ public class Auto15Close extends OpMode {
         SCORE_4(new Pose(0,0,0)),
 
         TO_TAKE_4(new Pose(0,0,0)),
-        WAIT_TAKING1(new Pose(0,0,0)),
-        TAKE_4(new Pose(0,0,0)),
+
+        TO_GATE_1(new Pose(0,0,0)),
+        GATE_WAIT(new Pose(0,0,0)),
+        GATE(new Pose(0,0,0)),
+
         TO_SCORE_5(new Pose(0,0,0)),
         SCORE_5(new Pose(0,0,0)),
 
-        TO_TAKE_5(new Pose(0,0,0)),
-        WAIT_TAKING2(new Pose(0,0,0)),
-        TAKE_5(new Pose(0,0,0)),
-        TO_SCORE_6(new Pose(0,0,0)),
-        SCORE_6(new Pose(0,0,0)),
-
-        PARKING(new Pose(0,0,0)),
-        SEX(new Pose(0,0,0)),
         ;
 
         final Pose finalPose;
@@ -85,7 +80,7 @@ public class Auto15Close extends OpMode {
     private ElapsedTime secondActionTimer;
     private ElapsedTime matchTimer ;
 
-    private PathChain START_TO_SCORE,SCORE_TO_TAKE1,TAKE1_TO_SCORE, SCORE_TO_TAKE2,TAKE2_TO_SCORE, SCORE_TO_TAKE3,TAKE_3_TO_GATE, GATE_TO_SCORE, SCORE_TO_TAKE4,TAKE_4,TAKE4_TO_SCORE,SCORE_TO_PARKING = null;
+    private PathChain START_TO_SCORE,SCORE_TO_TAKE1,TAKE1_TO_SCORE, SCORE_TO_TAKE2,TAKE2_TO_SCORE, SCORE_TO_TAKE3,TAKE_3_TO_GATE, GATE_TO_SCORE, SCORE_TO_TAKE4,TAKE_4,TAKE4_TO_SCORE,SCORE_TO_PARKING,SCORE_TO_GATE_1,GATE_1_TO_GATE,GATE_1_TO_SCORE = null;
 
     private void buildPaths(){
         if(isBlue){
@@ -252,6 +247,22 @@ public class Auto15Close extends OpMode {
 
             // ====================================TAKE4============================================
 
+            SCORE_TO_GATE_1 = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE,FieldConstants.Red.GATE_1))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.GATE_1.getHeading(),0.7)
+                    .setTValueConstraint(0.9)
+                    .build();
+
+            GATE_1_TO_GATE = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.GATE_1,FieldConstants.Red.GATE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.GATE_1.getHeading(),FieldConstants.Red.GATE.getHeading(),0.7)
+                    .setTValueConstraint(0.9)
+
+                    .build();
+
+            GATE_1_TO_SCORE = follower.pathBuilder()
+                    .addPath(new BezierLine())
+
 
         }
     }
@@ -334,9 +345,9 @@ public class Auto15Close extends OpMode {
 
             case SCORE_3:
                 if(!follower.isBusy() && actionTimer.milliseconds() > shootingTime){
-                    setPathState(PathStates.TO_TAKING_3);
+                    setPathState(PathStates.TO_GATE_1);
                     follower.setMaxPower(1);
-                    follower.followPath(SCORE_TO_TAKE3);
+                    follower.followPath();
                     niggantroller.shootBall(false);
                     niggantroller.toShootShooter(false);
                 }
@@ -346,7 +357,7 @@ public class Auto15Close extends OpMode {
 
 
 
-
+// Take3 =============================
             case TO_TAKING_3:
                 if(!follower.isBusy()){
                     setPathState(PathStates.TAKE_3_TO_GATE);
@@ -385,6 +396,9 @@ public class Auto15Close extends OpMode {
                     follower.followPath(SCORE_TO_TAKE4);
                 }
                 break;
+
+
+
 
 
         }
