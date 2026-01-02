@@ -78,7 +78,7 @@ public class ogreOp extends OpMode {
     private BaseController baseController;
     private asmGamepadEx driver1;
     private asmRobotState robotState = new asmRobotState();
-    private TurretControllerLLHeadTrack turretController;
+    private TurretControllerMotorLL turretController;
 
     private double targetVelocityToCheck = asmConfig.motorVelocityClose ;
     private double offset = asmConfig.motorOffsetClose;
@@ -112,10 +112,10 @@ public class ogreOp extends OpMode {
         baseController.initialize(hardwareMap, true);
         baseController.resetHeading(1);
 
-        turretController = new TurretControllerLLHeadTrack();
-        turretController.initialize(hardwareMap,"turret","limelight");
+        turretController = new TurretControllerMotorLL();
+        turretController.initialize(hardwareMap,"turret");
 
-        turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.FIELD_ANGLE);
+        turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
 
         turretController.enableLimelightCorrection(false);
 //        turretController.setGamepad(gamepad1);
@@ -187,9 +187,9 @@ public class ogreOp extends OpMode {
         }
 
         if(isTurretFieldAngle){
-            turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.FIELD_ANGLE);
+            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.FIELD_ANGLE);
         }else{
-            turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.ROBOT_RELATIVE);
+            turretController.setTurretMode(TurretControllerMotorLL.TurretMode.ROBOT_RELATIVE);
             turretController.setRobotRelativeAngle(0);
 
         }
@@ -217,7 +217,7 @@ public class ogreOp extends OpMode {
         if(driver1.isLeftBumperPressed()){
             niggantroller.intakeEpt(1);
         }
-        if(driver1.isRightTriggerPressed(0.15)){
+        if(driver1.isRightTriggerPressed(0.15) && niggantroller.checkShooterVelocity(targetVelocityToCheck,offset)){
             niggantroller.shootBall(true);
 
         }
@@ -286,13 +286,14 @@ public class ogreOp extends OpMode {
 
 
         niggantroller.update(gamepad2.back);
-        turretController.update(follower.getPose());
+//        turretController.update(follower.getCurrentPath().getLastControlPoint().getPose());
         turretController.showTelemetry(telemetry);
 //            robotState.updatePose(follower.getPose());
 //            niggantroller.showTurretTelemetry(telemetry);
         telemetry.addData("X",follower.getPose().getX());
         telemetry.addData("Y",follower.getPose().getY());
         telemetry.addData("heading",follower.getPose().getHeading());
+        niggantroller.showShooterTelemetry(telemetry);
         niggantroller.showShooterTelemetry(telemetry);
 
         telemetry.update();

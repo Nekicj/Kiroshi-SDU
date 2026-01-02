@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerLLHeadTrack;
+import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerLimelight;
 import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotor;
 import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorLL;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
@@ -17,21 +18,21 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Config
 @TeleOp(name = "Turret Test",group = "Competition")
 public class turretTest extends LinearOpMode {
-    private TurretControllerLLHeadTrack turretController;
+    private TurretControllerLimelight turretController;
     private asmGamepadEx driver1;
 
-    public static double fieldAngle = 30;
+    public static double fieldAngle = -30;
 
     private Follower follower;
     @Override
     public void runOpMode() {
-        turretController = new TurretControllerLLHeadTrack();
+        turretController = new TurretControllerLimelight();
         turretController.initialize(hardwareMap,"turret","limelight");
 
-        turretController.setTurretMode(TurretControllerLLHeadTrack.TurretMode.LIMELIGHT_TRACKING);
-        turretController.setFieldAngleTarget(30);
-        turretController.enableLimelightCorrection(true);
-        turretController.setPipeline(1);
+        turretController.setTurretMode(TurretControllerLimelight.TurretMode.FIELD_ANGLE);
+        turretController.setFieldAngleTarget(-30);
+//        turretController.setLimelightCorrectionEnabled(true);
+        turretController.setPipeline(0);
 
 
         follower = Constants.createFollower(hardwareMap);

@@ -21,18 +21,19 @@ public class FieldConstants {
             public static final Pose FAR = new Pose(0,0,0);
         }
 
-        public static final Pose SCORE_POSE = new Pose(28.854, -8.513, 0);
+        public static final Pose SCORE_POSE = new Pose(43.844, -17.878, 0);
 
         public static final Pose SCORE_POSE_GATE_FACED = new Pose(43.844, -17.878, 1.57);
 
         public static class Take1 {
             public static final Pose START = new Pose(33.24, -16.465, 1.57);
-            public static final Pose FINAL = new Pose(43.844, 24.5, 1.57);
+            public static final Pose FINAL = new Pose(43.844, 22.5, 1.57);
         }
 
         public static class Take2 {
             public static final Pose START = new Pose(67.87, -19.465, 1.57);
-            public static final Pose FINAL = new Pose(67.87, 30, 1.57);
+            public static final Pose MID = new Pose(67.87, 24, 1.57);
+            public static final Pose FINAL = new Pose(67.87, 24, 1.57);
         }
 
         public static class Take2Gate {
@@ -42,17 +43,24 @@ public class FieldConstants {
         }
 
         public static class Take3 {
-            public static final Pose START = new Pose(89, -20.465, 1.57);
-            public static final Pose FINAL = new Pose(89, 30, 1.57);
+            public static final Pose START = new Pose(91, -20.465, 1.57);
+            public static final Pose FINAL = new Pose(91, 30, 1.57);
+        }
+
+        public static class Take4 {
+            public static final Pose PATH = new Pose(83.64, 30.07, 0.45);
+            public static final Pose FINAL = new Pose(118.37, 32.429, 0.45);
         }
 
         public static class Take5 {
-            public static final Pose PATH = new Pose(80.64, 29.07, 0);
+            public static final Pose PATH = new Pose(80.64, 29.07, 0.3);
             public static final Pose FINAL = new Pose(118.37, 27.429, 0.3);
         }
 
-        public static final Pose GATE = new Pose(64.7, -28, -2.4);
-        public static final Pose GATE_OPEN = new Pose(58, 26.5, 0);
+        public static final Pose GATE = new Pose(65.804, 29.61, 2.122);
+        public static final Pose GATE_1 = new Pose(65.804, 24, 2.122);
+
+        public static final Pose GATE_OPEN = new Pose(58, 27.8, 0);
 
         public static final Pose GOAL_POSE = new Pose(-7,-35.179,0);
     }

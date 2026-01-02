@@ -29,9 +29,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
  * Все твои кореша хотят попасть в Кузнецкий Сквад (Сквад)
  */
 
-@Autonomous(name="21 джойстик мне в зад")
+@Autonomous(name="Gate")
 @Disabled
-public class Auto21Close extends OpMode {
+public class AutoGateTake extends OpMode {
     private enum PathStates{
         START(new Pose(0, 72, 0)),
 
@@ -43,6 +43,7 @@ public class Auto21Close extends OpMode {
         SCORE_2(new Pose(0,0,0)),
 
         TO_GATE_1(new Pose(0,0,0)),
+        GATE_1_TO_GATE(new Pose(0,0,0)),
         GATE_1(new Pose(0,0,0)),
         WAIT_GATE_1(new Pose(0,0,0)),
         TO_SCORE_3(new Pose(0,0,0)),
@@ -79,12 +80,10 @@ public class Auto21Close extends OpMode {
     private Niggantroller niggantroller;
     private ElapsedTime actionTimer;
 
-    private PathChain START_TO_SCORE,SCORE_TO_TAKE2_N_GATE,SCORE_TO_GATE,GATE_GLOKGLOK,GATE_TO_SCORE,SCORE_TO_PARKING,GATE  = null;
+    private PathChain START_TO_SCORE,SCORE_TO_TAKE2_N_GATE, SCORE_TO_GATE_1,GATE_1_TO_GATE,GATE_GLOKGLOK,GATE_TO_SCORE,SCORE_TO_PARKING,GATE  = null;
 
     private void buildPaths(){
         if(isBlue){
-            follower.setStartingPose(FieldConstants.Blue.Start.CLOSE);
-
             START_TO_SCORE = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Blue.Start.CLOSE,FieldConstants.Blue.SCORE_POSE_GATE_FACED))
                     .setLinearHeadingInterpolation(FieldConstants.Blue.Start.CLOSE.getHeading(),FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),0.8)
@@ -92,26 +91,7 @@ public class Auto21Close extends OpMode {
 
                     .build();
 
-            SCORE_TO_TAKE2_N_GATE = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Blue.SCORE_POSE_GATE_FACED,FieldConstants.Blue.Take2Gate.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Blue.Take2Gate.START.getHeading(),0.6)
-                    .setTValueConstraint(0.995)
-
-                    .addPath(new BezierLine(FieldConstants.Blue.Take2Gate.START,FieldConstants.Blue.Take2.FINAL))
-                    .setLinearHeadingInterpolation(FieldConstants.Blue.Take2Gate.START.getHeading(),FieldConstants.Blue.Take2.FINAL.getHeading(),0.8)
-                    .setTValueConstraint(0.85)
-
-                    .addPath(new BezierLine(FieldConstants.Blue.Take2.FINAL,FieldConstants.Blue.Take2Gate.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Blue.Take2.FINAL.getHeading(),FieldConstants.Blue.Take2Gate.START.getHeading(),0.8)
-                    .setTValueConstraint(0.85)
-
-                    .addPath(new BezierLine(FieldConstants.Blue.Take2Gate.START,FieldConstants.Blue.SCORE_POSE_GATE_FACED))
-                    .setLinearHeadingInterpolation(FieldConstants.Blue.Take2Gate.START.getHeading(),FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),0.7)
-                    .setTValueConstraint(0.995)
-
-                    .build();
-
-            SCORE_TO_GATE = follower.pathBuilder()
+            SCORE_TO_GATE_1 = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Blue.SCORE_POSE_GATE_FACED,FieldConstants.Blue.Take2Gate.START))
                     .setLinearHeadingInterpolation(FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Blue.Take2Gate.START.getHeading(),0.8)
                     .setTValueConstraint(0.995)
@@ -123,11 +103,7 @@ public class Auto21Close extends OpMode {
 
                     .build();
 
-//            GATE = follower.pathBuilder()
-//                    .addPath(new BezierLine(FieldConstants.Blue.Take2Gate.FINAL,FieldConstants.Blue.GATE))
-//                    .setConstantHeadingInterpolation(FieldConstants.Blue.GATE.getHeading())
-//                    .setTValueConstraint(0.9)
-//                    .build();
+
 
             GATE_TO_SCORE = follower.pathBuilder()
                     .addPath(new BezierLine( FieldConstants.Blue.GATE,FieldConstants.Blue.Take2Gate.START))
@@ -139,17 +115,43 @@ public class Auto21Close extends OpMode {
                     .setTValueConstraint(0.995)
                     .build();
 
-            SCORE_TO_PARKING = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Blue.SCORE_POSE_GATE_FACED,FieldConstants.Blue.Take2.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Blue.Take2.START.getHeading(),0.8)
+
+        }else{
+            START_TO_SCORE = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.Start.CLOSE_GATE_FACED,FieldConstants.Red.SCORE_POSE_GATE_FACED))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Start.CLOSE_GATE_FACED.getHeading(),FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),0.8)
                     .setTValueConstraint(0.995)
+
                     .build();
 
+
+            SCORE_TO_GATE_1 = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE_GATE_FACED,FieldConstants.Red.GATE_1))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.GATE_1.getHeading(),0.8)
+                    .setTValueConstraint(0.995)
+
+                    .build();
+
+
+            GATE_1_TO_GATE = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.GATE_1,FieldConstants.Red.GATE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.GATE_1.getHeading(),FieldConstants.Red.GATE.getHeading())
+                    .build();
+
+
+
+            GATE_TO_SCORE = follower.pathBuilder()
+                    .addPath(new BezierLine( FieldConstants.Red.GATE,FieldConstants.Red.SCORE_POSE_GATE_FACED))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.GATE.getHeading(),FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading())
+                    .setTValueConstraint(0.995)
+
+                    .build();
         }
     }
 
     private void pathUpdate(){
         switch (pathState){
+
             case START:
                 if(!follower.isBusy()){
                     follower.setMaxPower(1);
@@ -161,162 +163,51 @@ public class Auto21Close extends OpMode {
                 break;
             case TO_SCORE_1:
                 if(!follower.isBusy()){
-                    actionTimer.reset();
                     setPathState(PathStates.SCORE_1);
                     niggantroller.shootBall(true);
                 }
                 break;
             case SCORE_1:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 900){
-                    follower.setMaxPower(0.8);
-                    follower.followPath(SCORE_TO_TAKE2_N_GATE);
-                    setPathState(PathStates.TAKE_1_GATE);
+                if(!follower.isBusy() && actionTimer.milliseconds() > 800){
+                    setPathState(PathStates.TO_GATE_1);
+                    follower.followPath(SCORE_TO_GATE_1);
                     niggantroller.shootBall(false);
-//                    niggantroller.toShootShooter(true);
+                    niggantroller.toShootShooter(false);
                 }
                 break;
-            case TAKE_1_GATE:
+
+            case TO_GATE_1:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.GATE_1_TO_GATE);
+                    follower.followPath(GATE_1_TO_GATE);
+                    follower.setMaxPower(0.65);
+                }
+                break;
+            case GATE_1_TO_GATE:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.GATE_1);
+                    follower.setMaxPower(1);
+                }
+                break;
+            case GATE_1:
+                if(!follower.isBusy() && actionTimer.milliseconds() > 2500){
+                    follower.followPath(GATE_TO_SCORE);
+                    setPathState(PathStates.TO_SCORE_2);
+                    niggantroller.toShootShooter(true);
+                }
+                break;
+            case TO_SCORE_2:
                 if(!follower.isBusy()){
                     setPathState(PathStates.SCORE_2);
                     niggantroller.shootBall(true);
                 }
                 break;
-
             case SCORE_2:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 900){
-                    follower.followPath(SCORE_TO_GATE);
-                    setPathState(PathStates.GATE_1);
+                if(!follower.isBusy() && actionTimer.milliseconds() > 800){
                     niggantroller.shootBall(false);
                     niggantroller.toShootShooter(false);
-                }
-                break;
-
-            case GATE_1:
-                if(!follower.isBusy()){
-                    follower.setMaxPower(1);
-//                    follower.followPath(GATE);
-                    setPathState(PathStates.WAIT_GATE_1);
-                }
-                break;
-//            case TO_GATE_1:
-//                if(!follower.isBusy()){
-//                    setPathState(PathStates.WAIT_GATE_1);
-////                    follower.setMaxPower(1);
-//                }
-//                break;
-            case WAIT_GATE_1:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 1300){
-//                    follower.setMaxPower(1);
-                    follower.followPath(GATE_TO_SCORE);
-                    setPathState(PathStates.TO_SCORE_3);
-                    niggantroller.toShootShooter(true);
-                }
-                break;
-            case TO_SCORE_3:
-                if(!follower.isBusy()){
-                    setPathState(PathStates.SCORE_3);
-                    niggantroller.shootBall(true);
-                }
-                break;
-
-
-
-
-
-
-            case SCORE_3:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 900){
-                    follower.followPath(SCORE_TO_GATE);
-                    follower.setMaxPower(0.8);
-                    setPathState(PathStates.GATE_2);
-                    niggantroller.shootBall(false);
-                    niggantroller.toShootShooter(false);
-                }
-                break;
-
-
-
-            case GATE_2:
-                if(!follower.isBusy()){
-                    follower.setMaxPower(1);
-//                    follower.followPath(GATE);
-                    setPathState(PathStates.WAIT_GATE_2);
-                }
-                break;
-//            case TO_GATE_2:
-//                if(!follower.isBusy()){
-//                    follower.setMaxPower(1);
-//                    setPathState(PathStates.WAIT_GATE_2);
-//                }
-//                break;
-            case WAIT_GATE_2:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 1300){
-                    follower.setMaxPower(1);
-                    follower.followPath(GATE_TO_SCORE);
-                    setPathState(PathStates.TO_SCORE_4);
-                    niggantroller.toShootShooter(true);
-                }
-                break;
-
-
-            case TO_SCORE_4:
-                if(!follower.isBusy()){
-                    setPathState(PathStates.SCORE_4);
-                    niggantroller.shootBall(true);
-                }
-                break;
-
-
-
-
-            case SCORE_4:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 900){
-                    follower.followPath(SCORE_TO_GATE);
-                    follower.setMaxPower(0.8);
-                    niggantroller.shootBall(false);
-                    niggantroller.toShootShooter(false);
-                    setPathState(PathStates.GATE_3);
-                }
-                break;
-
-
-            case GATE_3:
-                if(!follower.isBusy()){
-                    follower.setMaxPower(1);
-//                    follower.followPath(GATE);
-                    setPathState(PathStates.WAIT_GATE_3);
-                }
-                break;
-//            case TO_GATE_3:
-//                if(!follower.isBusy()){
-//                    follower.setMaxPower(1);
-//                    setPathState(PathStates.WAIT_GATE_3);
-//                }
-//                break;
-            case WAIT_GATE_3:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 1300){
-                    follower.setMaxPower(1);
-                    follower.followPath(GATE_TO_SCORE);
-                    setPathState(PathStates.TO_SCORE_5);
-                    niggantroller.toShootShooter(true);
-                }
-                break;
-
-            case TO_SCORE_5:
-                if(!follower.isBusy()){
-                    setPathState(PathStates.SCORE_5);
-                    niggantroller.shootBall(true);
-                }
-                break;
-
-
-
-            case SCORE_5:
-                if(!follower.isBusy() && actionTimer.milliseconds() > 1000){
-                    follower.followPath(SCORE_TO_PARKING);
-                    niggantroller.shootBall(false);
-                    niggantroller.toShootShooter(false);
-                    setPathState(PathStates.PARKING);
+                    setPathState(PathStates.TO_GATE_1);
+                    follower.followPath(SCORE_TO_GATE_1);
                 }
                 break;
         }
@@ -333,10 +224,6 @@ public class Auto21Close extends OpMode {
     public void init(){
         isBlue = asmConfig.isBlue;
 
-        actionTimer = new ElapsedTime();
-        actionTimer.reset();
-        setPathState(PathStates.START);
-
         turretController = new TurretControllerMotor();
         turretController.initialize(hardwareMap,"turret");
         turretController.setTurretMode(TurretControllerMotor.TurretMode.FIELD_ANGLE);
@@ -344,14 +231,27 @@ public class Auto21Close extends OpMode {
         niggantroller = new Niggantroller(hardwareMap,telemetry);
 
         follower = Constants.createFollower(hardwareMap);
+
+
+
+
         if(isBlue){
-            follower.setStartingPose(FieldConstants.Blue.Start.CLOSE);
+            follower.setStartingPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
+            follower.setPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Blue.GOAL_POSE.getX(),FieldConstants.Blue.GOAL_POSE.getY());
             turretController.setFieldAngleTarget(225);
         }else{
-            follower.setStartingPose(FieldConstants.Red.Start.CLOSE);
+            follower.setStartingPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
+            follower.setPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Red.GOAL_POSE.getX(),FieldConstants.Red.GOAL_POSE.getY());
+            turretController.setFieldAngleTarget(-225);
         }
+
+
+        follower.update();
+
+
+        actionTimer = new ElapsedTime();
 
         niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoClose);
 //        turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
@@ -375,11 +275,13 @@ public class Auto21Close extends OpMode {
 
         follower.update();
         niggantroller.update(false);
+        niggantroller.showShooterTelemetry(telemetry);
         turretController.update(follower.getPose());
         turretController.showTelemetry(telemetry);
         telemetry.addData("x: ",follower.getPose().getX());
         telemetry.addData("y: ",follower.getPose().getY());
         telemetry.addData("heading: ",follower.getPose().getHeading());
+        telemetry.addData("state: ",pathState);
         telemetry.update();
     }
 }

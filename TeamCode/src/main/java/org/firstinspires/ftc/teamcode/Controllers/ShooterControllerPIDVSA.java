@@ -27,7 +27,7 @@
 //        public static double kD = 0;
 
         public static double kS = 0.825;    // Volts - static friction
-        public static double kV = 0.00425;  // Volts per RPM - velocity constant
+        public static double kV = 0.0045;  // Volts per RPM - velocity constant
         public static double kA = 0.0003;  // Volts per RPM/s - acceleration constant
 
         public static double kP = 0.025;
@@ -110,7 +110,7 @@
             double dt = (currentTime - lastTime) * 1e-9;
             lastTime = currentTime;
 
-            double currentVelocity = (shooterMotorLeft.getVelocity() + shooterMotorRight.getVelocity()) / 2.0;
+            double currentVelocity = shooterMotorLeft.getVelocity();
 
             double acceleration = (currentVelocity - lastVelocity) / dt;
             lastVelocity = currentVelocity;
@@ -143,15 +143,16 @@
 
         public boolean isReadyToShoot(double tolerance) {
             if (targetVelocityRPM == 0) return false;
-            double currentVelocity = (shooterMotorLeft.getVelocity() + shooterMotorRight.getVelocity()) / 2.0;
+            double currentVelocity = shooterMotorLeft.getVelocity();
             return Math.abs(currentVelocity - targetVelocityRPM) < tolerance;
         }
+//        Жанс лолх еюал его в  поппу и ообще он какашка
 
 
 
 
         public void showTelemetry(Telemetry telemetry) {
-            double currentVelocity = (shooterMotorLeft.getVelocity() + shooterMotorRight.getVelocity()) / 2.0;
+            double currentVelocity = shooterMotorLeft.getVelocity();
             double currentVoltage = voltageSensor.getVoltage();
             double voltageCompensation = NOMINAL_VOLTAGE / currentVoltage;
 

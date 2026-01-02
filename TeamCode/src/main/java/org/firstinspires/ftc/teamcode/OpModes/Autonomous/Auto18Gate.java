@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
  * Все твои кореша хотят попасть в Кузнецкий Сквад (Сквад)
  */
 
-@Autonomous(name="4 * 3 = ")
-public class Auto12WithoutGate extends OpMode {
+@Autonomous(name="6 * 3 = ")
+public class Auto18Gate extends OpMode {
     private enum PathStates{
         START(new Pose(0, 72, 0)),
 
@@ -43,16 +43,24 @@ public class Auto12WithoutGate extends OpMode {
         TO_SCORE_3(new Pose(0,0,0)),
         SCORE_3(new Pose(0,0,0)),
 
+        TAKE_3_TO_GATE(new Pose(0,0,0)),
         TO_GATE(new Pose(0,0,0)),
         TO_TAKING_3(new Pose(0,0,0)),
         TAKING_3(new Pose(0,0,0)),
         TO_SCORE_4(new Pose(0,0,0)),
         SCORE_4(new Pose(0,0,0)),
 
-        TO_FINAL1(new Pose(0,0,0)),
-        FINAL1_FINAL2(new Pose(0,0,0)),
-        FINAL2_TO_SCORE(new Pose(0,0,0)),
+        TO_TAKE_4(new Pose(0,0,0)),
+        WAIT_TAKING1(new Pose(0,0,0)),
+        TAKE_4(new Pose(0,0,0)),
+        TO_SCORE_5(new Pose(0,0,0)),
         SCORE_5(new Pose(0,0,0)),
+
+        TO_TAKE_5(new Pose(0,0,0)),
+        WAIT_TAKING2(new Pose(0,0,0)),
+        TAKE_5(new Pose(0,0,0)),
+        TO_SCORE_6(new Pose(0,0,0)),
+        SCORE_6(new Pose(0,0,0)),
 
         PARKING(new Pose(0,0,0)),
         SEX(new Pose(0,0,0)),
@@ -64,7 +72,7 @@ public class Auto12WithoutGate extends OpMode {
         }
     }
 
-    public static double shootingTime = 700;
+    public static double shootingTime = 550;
     private boolean is6 = false;
 
 
@@ -76,7 +84,7 @@ public class Auto12WithoutGate extends OpMode {
     private ElapsedTime secondActionTimer;
     private ElapsedTime matchTimer ;
 
-    private PathChain START_TO_SCORE,SCORE_TO_TAKE1,TAKE1_TO_SCORE, SCORE_TO_TAKE2,TAKE2_TO_SCORE, SCORE_TO_TAKE3, TAKE3_TO_SCORE,SCORE_TO_FINAL1,FINAL1_TO_FINAL2,FINAL2_TO_SCORE,SCORE_TO_PARKING = null;
+    private PathChain START_TO_SCORE,SCORE_TO_TAKE1,TAKE1_TO_SCORE, SCORE_TO_TAKE2,TAKE2_TO_SCORE, SCORE_TO_TAKE3,TAKE_3_TO_GATE, GATE_TO_SCORE, SCORE_TO_TAKE4,TAKE_4,TAKE4_TO_SCORE,SCORE_TO_PARKING = null;
 
     private void buildPaths(){
         if(isBlue){
@@ -91,7 +99,7 @@ public class Auto12WithoutGate extends OpMode {
             SCORE_TO_TAKE1 = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Blue.SCORE_POSE_GATE_FACED,FieldConstants.Blue.Take1.FINAL))
                     .setLinearHeadingInterpolation(FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Blue.Take1.FINAL.getHeading())
-                    .setTValueConstraint(0.9)
+                    .setTValueConstraint(0.4)
 
 
                     .build();
@@ -140,7 +148,7 @@ public class Auto12WithoutGate extends OpMode {
 
 
 
-            TAKE3_TO_SCORE = follower.pathBuilder()
+            GATE_TO_SCORE = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Blue.Take3.FINAL,FieldConstants.Blue.SCORE_POSE_GATE_FACED))
                     .setLinearHeadingInterpolation(FieldConstants.Blue.Take3.FINAL.getHeading(),FieldConstants.Blue.SCORE_POSE_GATE_FACED.getHeading())
 //                    .setTangentHeadingInterpolation()
@@ -160,69 +168,115 @@ public class Auto12WithoutGate extends OpMode {
 
                     .build();
 
+
+            // =======================================TAKE1=========================================
+
             SCORE_TO_TAKE1 = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE_GATE_FACED,FieldConstants.Red.Take1.FINAL))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.Take1.FINAL.getHeading())
-                    .setTValueConstraint(0.9)
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.Take1.FINAL.getHeading(),0.8)
+                    .setTValueConstraint(0.5)
 
 
                     .build();
 
             TAKE1_TO_SCORE = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Red.Take1.FINAL,FieldConstants.Red.SCORE_POSE_GATE_FACED))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.Take1.FINAL.getHeading(),FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),0.6)
+                    .addPath(new BezierLine(FieldConstants.Red.Take1.FINAL,FieldConstants.Red.SCORE_POSE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take1.FINAL.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.6)
                     .setTValueConstraint(0.995)
                     .build();
 
+            // ======================================TAKE2==========================================
+
             SCORE_TO_TAKE2 = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE_GATE_FACED,FieldConstants.Red.Take2Gate.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.Take2Gate.START.getHeading(),0.6)
+                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE,FieldConstants.Red.Take2Gate.START))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.Take2Gate.START.getHeading(),0.6)
                     .setTValueConstraint(0.995)
 
                     .addPath(new BezierLine(FieldConstants.Red.Take2Gate.START,FieldConstants.Red.Take2.FINAL))
                     .setLinearHeadingInterpolation(FieldConstants.Red.Take2Gate.START.getHeading(),FieldConstants.Red.Take2.FINAL.getHeading(),0.8)
                     .setTValueConstraint(0.85)
 
-                    .addPath(new BezierLine(FieldConstants.Red.Take2.FINAL,FieldConstants.Red.GATE_OPEN))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.Take2.FINAL.getHeading(),FieldConstants.Red.GATE_OPEN.getHeading(),0.7)
+                    .addPath(new BezierLine(FieldConstants.Red.Take2.FINAL,FieldConstants.Red.SCORE_POSE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take2.FINAL.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.7)
+                    .setTValueConstraint(0.6)
 
                     .build();
 
 
 
             TAKE2_TO_SCORE = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Red.GATE_OPEN,FieldConstants.Red.SCORE_POSE))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.GATE_OPEN.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.8)
+                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE,FieldConstants.Red.SCORE_POSE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.8)
                     .setTValueConstraint(0.995)
                     .build();
+
+            // =====================================================================================
+
+
+
+            // ======================================TAKE3==========================================
 
 
             SCORE_TO_TAKE3 = follower.pathBuilder()
 
 
                     .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE,FieldConstants.Red.Take3.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.Take3.START.getHeading())
-                    .setTValueConstraint(0.9)
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.Take3.START.getHeading(),0.7)
+                    .setTValueConstraint(0.6)
 
                     .addPath(new BezierLine(FieldConstants.Red.Take3.START,FieldConstants.Red.Take3.FINAL))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.Take3.START.getHeading(),FieldConstants.Red.Take3.FINAL.getHeading())
-                    .setTValueConstraint(0.9)
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take3.START.getHeading(),FieldConstants.Red.Take3.FINAL.getHeading(),0.7)
+                    .setTValueConstraint(0.7)
 
+                    .build();
+
+            TAKE_3_TO_GATE = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.Take3.FINAL,FieldConstants.Red.GATE_OPEN))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take3.FINAL.getHeading(),FieldConstants.Red.GATE_OPEN.getHeading(),0.75)
+                    .setTValueConstraint(0.8)
                     .build();
 
 
 
-            TAKE3_TO_SCORE = follower.pathBuilder()
-                    .addPath(new BezierLine(FieldConstants.Red.Take3.FINAL,FieldConstants.Red.SCORE_POSE_GATE_FACED))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.Take3.FINAL.getHeading(),FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading())
-//                    .setTangentHeadingInterpolation()
+            GATE_TO_SCORE = follower.pathBuilder()
+
+                    .addPath(new BezierLine(FieldConstants.Red.GATE_OPEN,FieldConstants.Red.SCORE_POSE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.GATE_OPEN.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.7)
                     .setTValueConstraint(0.995)
                     .build();
 
 
+            // =====================================================================================
+
+
+            // ====================================TAKE4============================================
+
+            SCORE_TO_TAKE4 = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE,FieldConstants.Red.Take4.PATH))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE.getHeading(),FieldConstants.Red.Take4.PATH.getHeading(),0.9)
+                    .setTValueConstraint(0.85)
+
+                    .build();
+
+            TAKE_4 = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.Take4.PATH,FieldConstants.Red.Take4.FINAL))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take4.PATH.getHeading(),FieldConstants.Red.Take4.FINAL.getHeading(),0.8)
+                    .setTValueConstraint(0.95)
+
+                    .build();
+
+            TAKE4_TO_SCORE = follower.pathBuilder()
+                    .addPath(new BezierLine(FieldConstants.Red.Take4.FINAL,FieldConstants.Red.SCORE_POSE))
+                    .setLinearHeadingInterpolation(FieldConstants.Red.Take4.FINAL.getHeading(),FieldConstants.Red.SCORE_POSE.getHeading(),0.8)
+                    .setTValueConstraint(0.995)
+
+                    .build();
+
+
+
             SCORE_TO_PARKING = follower.pathBuilder()
                     .addPath(new BezierLine(FieldConstants.Red.SCORE_POSE_GATE_FACED,FieldConstants.Red.Take2.START))
-                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.Take2.START.getHeading())
+                    .setLinearHeadingInterpolation(FieldConstants.Red.SCORE_POSE_GATE_FACED.getHeading(),FieldConstants.Red.Take2.START.getHeading(),0.7)
                     .build();
         }
     }
@@ -285,9 +339,9 @@ public class Auto12WithoutGate extends OpMode {
                 }
                 break;
             case TO_SCORE_3:
-                if(!follower.isBusy() && actionTimer.milliseconds()>800){
+                if(!follower.isBusy() && actionTimer.milliseconds()>0){
                     setPathState(PathStates.TAKING_2);
-                    follower.followPath(TAKE2_TO_SCORE);
+//                    follower.followPath(TAKE2_TO_SCORE);
                     niggantroller.toShootShooter(true);
                 }
                 break;
@@ -305,6 +359,7 @@ public class Auto12WithoutGate extends OpMode {
             case SCORE_3:
                 if(!follower.isBusy() && actionTimer.milliseconds() > shootingTime){
                     setPathState(PathStates.TO_TAKING_3);
+                    follower.setMaxPower(1);
                     follower.followPath(SCORE_TO_TAKE3);
                     niggantroller.shootBall(false);
                     niggantroller.toShootShooter(false);
@@ -313,13 +368,20 @@ public class Auto12WithoutGate extends OpMode {
 
             case TO_TAKING_3:
                 if(!follower.isBusy()){
-                    setPathState(PathStates.TAKING_3);
-//                    follower.followPath(TAKE3_TO_GATE);
+                    setPathState(PathStates.TAKE_3_TO_GATE);
+                    follower.setMaxPower(1);
+                    follower.followPath(TAKE_3_TO_GATE);
                 }
                 break;
-            case TAKING_3:
+            case TAKE_3_TO_GATE:
                 if(!follower.isBusy()){
-                    follower.followPath(TAKE3_TO_SCORE);
+                    setPathState(PathStates.TAKING_3);
+                }
+                break;
+
+            case TAKING_3:
+                if(!follower.isBusy() && actionTimer.milliseconds() > 600){
+                    follower.followPath(GATE_TO_SCORE);
                     setPathState(PathStates.TO_SCORE_4);
                     niggantroller.toShootShooter(true);
                 }
@@ -338,10 +400,95 @@ public class Auto12WithoutGate extends OpMode {
                 if(!follower.isBusy() && actionTimer.milliseconds() > shootingTime){
                     niggantroller.shootBall(false);
                     niggantroller.toShootShooter(false);
-                    setPathState(PathStates.PARKING);
-                    follower.followPath(SCORE_TO_PARKING);
+                    setPathState(PathStates.TO_TAKE_4);
+                    follower.followPath(SCORE_TO_TAKE4);
                 }
                 break;
+// Take 4 -------
+            case TO_TAKE_4:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.WAIT_TAKING1);
+                    follower.setMaxPower(0.8);
+                    follower.followPath(TAKE_4);
+                }
+                break;
+
+//            case TAKE_4:
+//                if(!follower.isBusy()){
+//
+//                    setPathState(PathStates.WAIT_TAKING);
+//                }
+//                break;
+            case WAIT_TAKING1:
+                if(!follower.isBusy() && actionTimer.milliseconds() > 1200){
+                    follower.followPath(TAKE4_TO_SCORE);
+                    follower.setMaxPower(1);
+                    niggantroller.toShootShooter(true);
+                    setPathState(PathStates.TO_SCORE_5);
+                }
+                break;
+            case TO_SCORE_5:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.SCORE_5);
+                    niggantroller.shootBall(true);
+                }
+                break;
+            case SCORE_5:
+                if(!follower.isBusy() && actionTimer.milliseconds() > shootingTime){
+                    niggantroller.shootBall(false);
+                    niggantroller.toShootShooter(false);
+                    setPathState(PathStates.TO_TAKE_5);
+                }
+                break;
+
+// Take5 ====================
+
+            case TO_TAKE_5:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.WAIT_TAKING2);
+                    follower.setMaxPower(0.8);
+                    follower.followPath(TAKE_4);
+                }
+                break;
+
+//            case TAKE_4:
+//                if(!follower.isBusy()){
+//
+//                    setPathState(PathStates.WAIT_TAKING);
+//                }
+//                break;
+            case WAIT_TAKING2:
+                if(!follower.isBusy() && actionTimer.milliseconds() > 1200){
+                    follower.followPath(TAKE4_TO_SCORE);
+                    follower.setMaxPower(1);
+                    niggantroller.toShootShooter(true);
+                    setPathState(PathStates.TO_SCORE_6);
+                }
+                break;
+            case TO_SCORE_6:
+                if(!follower.isBusy()){
+                    setPathState(PathStates.SCORE_6);
+                    niggantroller.shootBall(true);
+                }
+                break;
+            case SCORE_6:
+                if(!follower.isBusy() && actionTimer.milliseconds() > shootingTime){
+                    niggantroller.shootBall(false);
+                    niggantroller.toShootShooter(false);
+                    setPathState(PathStates.PARKING);
+                }
+                break;
+
+
+
+
+
+
+
+
+
+
+
             case PARKING:
                 if(!follower.isBusy()){
                     turretController.setTurretMode(TurretControllerMotor.TurretMode.ROBOT_RELATIVE);
@@ -387,12 +534,12 @@ public class Auto12WithoutGate extends OpMode {
             follower.setStartingPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Blue.GOAL_POSE.getX(),FieldConstants.Blue.GOAL_POSE.getY());
-            turretController.setFieldAngleTarget(225);
+            turretController.setFieldAngleTarget(223);
         }else{
             follower.setStartingPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Red.GOAL_POSE.getX(),FieldConstants.Red.GOAL_POSE.getY());
-            turretController.setFieldAngleTarget(-228);
+            turretController.setFieldAngleTarget(-223);
         }
         follower.update();
 
@@ -425,16 +572,19 @@ public class Auto12WithoutGate extends OpMode {
     public void loop(){
         pathUpdate();
 
-        if(matchTimer.milliseconds() > 27500){
+        if(matchTimer.milliseconds() > 29500){
             turretController.setTurretMode(TurretControllerMotor.TurretMode.ROBOT_RELATIVE);
 //                    turretController.setFieldAngleTarget(270);
             turretController.setRobotRelativeAngle(0);
+        }
+        if(matchTimer.milliseconds() > 30500){
+            requestOpModeStop();
         }
 
 
         follower.update();
         niggantroller.update(false);
-        turretController.update(follower.getPose());
+        turretController.update(follower.getCurrentPath().getLastControlPoint().getPose());
         turretController.showTelemetry(telemetry);
         telemetry.addData("x: ",follower.getPose().getX());
         telemetry.addData("y: ",follower.getPose().getY());
