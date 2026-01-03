@@ -27,12 +27,12 @@
 //        public static double kD = 0;
 
         public static double kS = 0.825;    // Volts - static friction
-        public static double kV = 0.0045;  // Volts per RPM - velocity constant
+        public static double kV = 0.0041;  // Volts per RPM - velocity constant
         public static double kA = 0.0003;  // Volts per RPM/s - acceleration constant
 
-        public static double kP = 0.025;
-        public static double kI = 0.00005;
-        public static double kD = 0.001;
+        public static double kP = 0.02;
+        public static double kI = 0;
+        public static double kD = 0.0013;
 
 
 
@@ -46,7 +46,7 @@
 
         public static double servoClose = 0.3;
         public static double servoMedium = 0.45;
-        public static double servoHigh = 0.63;
+        public static double servoVeryClose = 0.25;
 
         public static enum ServosPos{
             DIRECTION_DOWN(0.6),

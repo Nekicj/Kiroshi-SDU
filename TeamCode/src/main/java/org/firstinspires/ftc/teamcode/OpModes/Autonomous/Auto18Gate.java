@@ -534,12 +534,12 @@ public class Auto18Gate extends OpMode {
             follower.setStartingPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Blue.GOAL_POSE.getX(),FieldConstants.Blue.GOAL_POSE.getY());
-            turretController.setFieldAngleTarget(223);
+            turretController.setFieldAngleTarget(228);
         }else{
             follower.setStartingPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Red.GOAL_POSE.getX(),FieldConstants.Red.GOAL_POSE.getY());
-            turretController.setFieldAngleTarget(-223);
+            turretController.setFieldAngleTarget(-225);
         }
         follower.update();
 

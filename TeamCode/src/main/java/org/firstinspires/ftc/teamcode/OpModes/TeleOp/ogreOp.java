@@ -4,14 +4,12 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOp;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controllers.Niggantroller;
 import org.firstinspires.ftc.teamcode.Controllers.BaseController;
 import org.firstinspires.ftc.teamcode.Controllers.ShooterControllerPIDVSA;
-import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerLLHeadTrack;
 import org.firstinspires.ftc.teamcode.Controllers.TurretControllers.TurretControllerMotorLL;
 import org.firstinspires.ftc.teamcode.Utils.asmConfig;
 import org.firstinspires.ftc.teamcode.Utils.asmGamepadEx;
@@ -122,10 +120,10 @@ public class ogreOp extends OpMode {
 
 
         if(isBlue){
-            turretController.setPipeline(1); //
+//            turretController.setPipeline(1); //
             turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentricBlue);
         }else{
-            turretController.setPipeline(0);
+//            turretController.setPipeline(0);
             turretController.setFieldAngleTarget(asmConfig.targetTurretCloseFieldCentric);
         }
 
@@ -253,10 +251,10 @@ public class ogreOp extends OpMode {
             }
 
 
-            targetVelocityToCheck = asmConfig.motorVelocityLong;
-            offset = asmConfig.motorOffsetLong;
+            targetVelocityToCheck = asmConfig.motorVelocityVeryClose;
+            offset = asmConfig.motorOffsetVeryClose;
             niggantroller.setShooterVelocity(targetVelocityToCheck);
-            niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoHigh);
+            niggantroller.setDirectionPos(ShooterControllerPIDVSA.servoVeryClose);
         }
 
         if(driver1.isRightStickButtonPressed()){
@@ -286,7 +284,7 @@ public class ogreOp extends OpMode {
 
 
         niggantroller.update(gamepad2.back);
-//        turretController.update(follower.getCurrentPath().getLastControlPoint().getPose());
+        turretController.update(follower.getPose());
         turretController.showTelemetry(telemetry);
 //            robotState.updatePose(follower.getPose());
 //            niggantroller.showTurretTelemetry(telemetry);

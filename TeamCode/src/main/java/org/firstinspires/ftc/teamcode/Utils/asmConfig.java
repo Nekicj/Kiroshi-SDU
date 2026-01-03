@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Utils;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.geometry.Pose;
 
 @Config
 public class asmConfig {
@@ -17,12 +16,15 @@ public class asmConfig {
     public static double motorVelocityClose = 1330;
     public static double motorOffsetClose = 50;
 
-    public static double motorVelocityLong = 1840;
-    public static double motorOffsetLong = 50;
+    public static double motorVelocityCloseBlue = 1390;
+    public static double motorOffsetCloseBlue = 50;
 
-    public static double targetTurretLongFieldCentric = 67;
+    public static double motorVelocityVeryClose = 1200;
+    public static double motorOffsetVeryClose = 50;
+
+    public static double targetTurretLongFieldCentric = 39;
     public static double targetTurretCloseFieldCentric = 39;
 
-    public static double targetTurretLongFieldCentricBlue = -75;
+    public static double targetTurretLongFieldCentricBlue = -45;
     public static double targetTurretCloseFieldCentricBlue = -45;
 }

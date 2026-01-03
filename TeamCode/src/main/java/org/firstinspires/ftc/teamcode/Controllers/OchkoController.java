@@ -1,17 +1,20 @@
 package org.firstinspires.ftc.teamcode.Controllers;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Config
 public class OchkoController {
     private Servo stopper = null;
     private Servo ramp = null;
 
-    private double stopperOff = 1;
-    private double stopperOn = 0.72;
+    public static double stopperOff = 0.98;
+    public static double stopperOn = 0.86
+            ;
 
-    private double rampOff = 0.7;
-    private double rampOn = 0.38;
+    public static double rampOff = 0.7;
+    public static double rampOn = 0.42;
 
 
     private boolean stopperStateOn = true;

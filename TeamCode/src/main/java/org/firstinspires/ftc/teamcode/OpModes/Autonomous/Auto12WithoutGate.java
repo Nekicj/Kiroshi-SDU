@@ -387,7 +387,7 @@ public class Auto12WithoutGate extends OpMode {
             follower.setStartingPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Blue.Start.CLOSE_GATE_FACED);
             turretController.setTargetPoint(FieldConstants.Blue.GOAL_POSE.getX(),FieldConstants.Blue.GOAL_POSE.getY());
-            turretController.setFieldAngleTarget(225);
+            turretController.setFieldAngleTarget(228);
         }else{
             follower.setStartingPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
             follower.setPose(FieldConstants.Red.Start.CLOSE_GATE_FACED);
