@@ -63,6 +63,16 @@ public class Auto18Gate extends OpMode {
         SCORE_5(new Pose(0,0,0)),
 
 
+        TO_GATE_2(new Pose(0,0,0)),
+        GATE_WAIT2(new Pose(0,0,0)),
+        GATE_TO_GATE_2(new Pose(0,0,0)),
+        GATE2(new Pose(0,0,0)),
+        GATE_WAIT_3(new Pose(0,0,0)),
+
+        TO_SCORE_6(new Pose(0,0,0)),
+        SCORE_6(new Pose(0,0,0)),
+
+
         PARKING(new Pose(0,0,0)),
 
         ;
@@ -483,17 +493,15 @@ public class Auto18Gate extends OpMode {
 
                     follower.setMaxPower(1);
 
-                    if(is5){
-                        setPathState(PathStates.TO_TAKING_3);
-                        follower.followPath(SCORE_TO_TAKE3);
-                    }else{
-                        setPathState(PathStates.TO_GATE_1);
-                        follower.followPath(SCORE_TO_GATE_1);
-                    }
 
-                    is5 = true;
+
+                    setPathState(PathStates.TO_GATE_1);
+                    follower.followPath(SCORE_TO_GATE_1);
+
                 }
                 break;
+
+
 
 
 
